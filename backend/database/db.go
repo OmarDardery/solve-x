@@ -8,7 +8,12 @@ import (
 )
 
 func NewDatabase() (*gorm.DB, func()) {
-	dsn := os.Getenv("DB_DSN")
+	var dsn string
+	if os.Getenv("ENVIRONMENT") == "production" {
+		dsn = os.Getenv("PROD_DB_DSN")
+	} else {
+		dsn = os.Getenv("DEV_DB_DSN")
+	}
 	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		panic("failed to connect database")
