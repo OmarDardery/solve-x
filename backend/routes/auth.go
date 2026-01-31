@@ -24,8 +24,8 @@ type SignInInput struct {
 	Password string `json:"password" binding:"required,min=8"`
 }
 
-// SignUpHandler handles user registration for both students and professors.
-func SendCodeHandler(db *gorm.DB, codes *map[string]int) gin.HandlerFunc {
+// SendCodeHandler sends a verification code to the provided email
+func SendCodeHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mailman) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var input struct {
 			Email string `json:"email" binding:"required,email"`
@@ -36,7 +36,7 @@ func SendCodeHandler(db *gorm.DB, codes *map[string]int) gin.HandlerFunc {
 		}
 		(*codes)[input.Email] = rand.Intn(900000) + 100000 // ensures value is between 100000–999999
 
-		err := mail_service.SendVerificationEmail(input.Email, fmt.Sprintf("%06d", (*codes)[input.Email]))
+		err := mailman.SendVerificationEmail(input.Email, fmt.Sprintf("%06d", (*codes)[input.Email]))
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -47,7 +47,9 @@ func SendCodeHandler(db *gorm.DB, codes *map[string]int) gin.HandlerFunc {
 		})
 	}
 }
-func SignUpHandler(db *gorm.DB, codes *map[string]int) gin.HandlerFunc {
+
+// SignUpHandler handles user registration for both students and professors
+func SignUpHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mailman) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		role := ctx.Param("role")
 

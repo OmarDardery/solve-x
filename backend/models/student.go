@@ -78,8 +78,12 @@ func CreateStudent(db *gorm.DB, firstName, lastName, email, password string) err
 	})
 }
 
-func (s Student) Notify(subject, content string) error {
-	return mail_service.SendNotification(s.Email, subject, content)
+func (s Student) Notify(mailman *mail_service.Mailman, subject, content string) error {
+	if mailman == nil {
+		// Fallback to legacy function for backward compatibility
+		return mail_service.SendNotification(s.Email, subject, content)
+	}
+	return mailman.SendNotification(s.Email, subject, content)
 }
 
 // GetStudentByID retrieves a student by ID with related data (Tags, Coins)

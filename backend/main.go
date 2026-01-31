@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/OmarDardery/solve-the-x-backend/database"
+	"github.com/OmarDardery/solve-the-x-backend/mail_service"
 	"github.com/OmarDardery/solve-the-x-backend/middleware"
 	"github.com/OmarDardery/solve-the-x-backend/models"
 	"github.com/OmarDardery/solve-the-x-backend/routes"
@@ -27,6 +28,9 @@ func main() {
 		panic("failed to migrate database")
 	}
 
+	// Initialize mail service
+	mailman := mail_service.NewMailman()
+
 	// Initialize Gin router
 	server := gin.Default()
 
@@ -47,9 +51,9 @@ func main() {
 		c.File(filePath)
 	})
 	auth := server.Group("/auth")
-	auth.POST("/sign-up/:role", routes.SignUpHandler(db, &verificationCodes))
+	auth.POST("/sign-up/:role", routes.SignUpHandler(db, &verificationCodes, mailman))
 	auth.POST("/sign-in/:role", routes.SignInHandler(db))
-	auth.POST("/send-code", routes.SendCodeHandler(db, &verificationCodes))
+	auth.POST("/send-code", routes.SendCodeHandler(db, &verificationCodes, mailman))
 
 	// Protected routes
 	protected := server.Group("/api")

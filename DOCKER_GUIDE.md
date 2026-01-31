@@ -30,8 +30,8 @@ solvex-monorepo/
 
 The development environment includes:
 - PostgreSQL database (port 5432)
-- Backend with hot reload (port 8000)
-- Frontend with Vite dev server (port 3000)
+- Backend with hot reload (port 8000) - automatically reloads on code changes
+- Frontend with Vite dev server (port 3000) - automatically reloads on code changes
 
 ```bash
 # Start all services
@@ -44,6 +44,31 @@ docker-compose -f docker-compose.dev.yml up -d
 docker-compose -f docker-compose.dev.yml up --build
 ```
 
+**Note:** In development mode, both frontend and backend support **hot reload** - your code changes will automatically reload the services without needing to restart containers!
+
+### Hot Reload / Auto-Reload in Development
+
+Both services automatically reload when you make code changes:
+
+**Backend (Go):**
+- Changes to `.go` files automatically trigger a rebuild and restart
+- Volume mounted: `./backend:/app` - your local code is synced to the container
+
+**Frontend (React + Vite):**
+- Vite's built-in Hot Module Replacement (HMR) instantly updates the browser
+- Volume mounted: `./frontend:/app` - your local code is synced to the container
+- Changes appear in browser within milliseconds
+
+**To test hot reload:**
+```bash
+# 1. Start dev environment
+docker-compose -f docker-compose.dev.yml up
+
+# 2. Edit any file in backend/ or frontend/
+# 3. Watch the logs - you'll see the service reload automatically
+# 4. For frontend, check your browser - changes appear instantly
+```
+
 ### Stop Development Environment
 
 ```bash
@@ -54,15 +79,19 @@ docker-compose -f docker-compose.dev.yml down
 docker-compose -f docker-compose.dev.yml down -v
 ```
 
-### View Logs
+### Watch Logs in Real-Time (See Auto-Reload)
 
 ```bash
-# All services
+# All services - see hot reload messages
 docker-compose -f docker-compose.dev.yml logs -f
 
-# Specific service
+# Backend only - watch Go app reload
 docker-compose -f docker-compose.dev.yml logs -f backend
+
+# Frontend only - watch Vite HMR updates
 docker-compose -f docker-compose.dev.yml logs -f frontend
+
+# Database logs
 docker-compose -f docker-compose.dev.yml logs -f db
 ```
 
@@ -290,6 +319,39 @@ docker-compose -f docker-compose.dev.yml exec backend go clean -modcache
 docker-compose -f docker-compose.dev.yml build --no-cache backend
 ```
 
+### Hot Reload Not Working
+
+**Backend:**
+```bash
+# Check if volume is mounted correctly
+docker-compose -f docker-compose.dev.yml exec backend ls -la /app
+
+# Verify backend logs show file watching
+docker-compose -f docker-compose.dev.yml logs -f backend
+
+# Restart backend service
+docker-compose -f docker-compose.dev.yml restart backend
+```
+
+**Frontend:**
+```bash
+# Check if Vite dev server is running
+docker-compose -f docker-compose.dev.yml logs frontend
+
+# Make sure you're accessing via http://localhost:3000
+# Vite HMR requires websocket connection
+
+# Restart frontend
+docker-compose -f docker-compose.dev.yml restart frontend
+```
+
+**Both:**
+```bash
+# Rebuild volumes (if code changes aren't syncing)
+docker-compose -f docker-compose.dev.yml down
+docker-compose -f docker-compose.dev.yml up --build
+```
+
 ---
 
 ## Environment Variables
@@ -318,22 +380,36 @@ Ensure backend `.env` has production database credentials (Prisma connection).
    - Development: `docker-compose -f docker-compose.dev.yml`
    - Production: `docker-compose`
 
-2. **Rebuild after dependency changes**:
+2. **In development, keep containers running for hot reload**:
    ```bash
-   docker-compose build --no-cache
+   # Run in foreground to see reload messages
+   docker-compose -f docker-compose.dev.yml up
+   
+   # Or run in background and watch logs
+   docker-compose -f docker-compose.dev.yml up -d
+   docker-compose -f docker-compose.dev.yml logs -f
    ```
 
-3. **Clean up regularly**:
+3. **Rebuild after dependency changes** (package.json, go.mod):
+   ```bash
+   docker-compose -f docker-compose.dev.yml down
+   docker-compose -f docker-compose.dev.yml build --no-cache
+   docker-compose -f docker-compose.dev.yml up
+   ```
+
+4. **For code changes, no rebuild needed** - hot reload handles it automatically!
+
+5. **Clean up regularly**:
    ```bash
    docker system prune
    ```
 
-4. **View logs when debugging**:
+6. **View logs when debugging**:
    ```bash
    docker-compose logs -f
    ```
 
-5. **Use health checks** to ensure services are ready before dependent services start
+7. **Use health checks** to ensure services are ready before dependent services start
 
 ---
 
@@ -341,12 +417,19 @@ Ensure backend `.env` has production database credentials (Prisma connection).
 
 | Task | Command |
 |------|---------|
-| Start dev | `docker-compose -f docker-compose.dev.yml up` |
-| Start prod | `docker-compose up` |
+| **Development** | |
+| Start dev (with hot reload) | `docker-compose -f docker-compose.dev.yml up` |
+| Start dev in background | `docker-compose -f docker-compose.dev.yml up -d` |
+| Watch logs (see auto-reload) | `docker-compose -f docker-compose.dev.yml logs -f` |
 | Stop dev | `docker-compose -f docker-compose.dev.yml down` |
-| Stop prod | `docker-compose down` |
 | Rebuild dev | `docker-compose -f docker-compose.dev.yml up --build` |
+| **Production** | |
+| Start prod | `docker-compose up` |
+| Stop prod | `docker-compose down` |
 | Rebuild prod | `docker-compose up --build` |
+| **Debugging** | |
 | View logs | `docker-compose logs -f <service>` |
 | Shell into container | `docker exec -it <container> sh` |
+| Restart service | `docker-compose restart <service>` |
+| **Cleanup** | |
 | Clean everything | `docker system prune -a --volumes` |

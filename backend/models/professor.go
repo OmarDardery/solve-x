@@ -68,8 +68,12 @@ func CreateProfessor(db *gorm.DB, firstName, lastName, email, password string) e
 	return db.Create(professor).Error
 }
 
-func (p Professor) Notify(subject, content string) error {
-	return mail_service.SendNotification(p.Email, subject, content)
+func (p Professor) Notify(mailman *mail_service.Mailman, subject, content string) error {
+	if mailman == nil {
+		// Fallback to legacy function for backward compatibility
+		return mail_service.SendNotification(p.Email, subject, content)
+	}
+	return mailman.SendNotification(p.Email, subject, content)
 }
 
 // GetProfessorByID retrieves a professor by ID
