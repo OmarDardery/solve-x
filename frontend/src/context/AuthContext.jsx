@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { dummyDataService } from '../services/dummyDataService'
+import { apiService } from '../services/api'
 import { USER_ROLES } from '../types'
 
 const AuthContext = createContext()
@@ -18,73 +18,57 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check localStorage for existing session
-    const storedUser = localStorage.getItem('dummyAuth_user')
-    const storedRole = localStorage.getItem('dummyAuth_role')
+    // Check for existing JWT token and restore session
+    const token = apiService.getToken()
+    const storedUser = localStorage.getItem('user')
+    const storedRole = localStorage.getItem('user_role')
     
-    if (storedUser) {
+    if (token && storedUser && storedRole) {
       try {
         const user = JSON.parse(storedUser)
         setCurrentUser(user)
-        setUserRole(storedRole || null)
+        setUserRole(storedRole)
+        
+        // Optionally verify token with backend
+        apiService.getProfile().catch(() => {
+          // Token invalid, clear session
+          logout()
+        })
       } catch (error) {
-        console.error('Error parsing stored user:', error)
-        localStorage.removeItem('dummyAuth_user')
-        localStorage.removeItem('dummyAuth_role')
+        console.error('Error restoring session:', error)
+        logout()
       }
     }
     
     setLoading(false)
   }, [])
 
-  async function signup(email, password, role, additionalData = {}) {
+  async function signup(role, code, email, password, firstName, lastName) {
     try {
-      // Check if email already exists
-      const users = JSON.parse(localStorage.getItem('dummyAuth_users') || '{}')
-      if (users[email]) {
-        throw new Error('This email is already registered. Please sign in instead.')
-      }
-
-      // Validate password
-      if (!password || password.length < 6) {
-        throw new Error('Password must be at least 6 characters')
-      }
-
-      // Validate email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(email)) {
-        throw new Error('Invalid email address.')
-      }
-
-      // Create user object
-      const uid = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      const user = {
-        uid,
+      const response = await apiService.signup(role, {
+        code: parseInt(code),
         email,
-        ...additionalData,
-      }
-
-      // Store user in localStorage
-      users[email] = {
-        uid,
-        email,
-        role,
-        password, // In real app, this would be hashed
-        ...additionalData,
-        createdAt: new Date().toISOString(),
-      }
-      localStorage.setItem('dummyAuth_users', JSON.stringify(users))
-
-      // Create user in dummy data service
-      dummyDataService.createUser(uid, {
-        email,
-        role,
-        ...additionalData,
+        password,
+        first_name: firstName,
+        last_name: lastName,
       })
 
-      // Set current session
-      localStorage.setItem('dummyAuth_user', JSON.stringify(user))
-      localStorage.setItem('dummyAuth_role', role)
+      // Store JWT token
+      if (response.token) {
+        apiService.setToken(response.token)
+      }
+
+      // Create user object from response
+      const user = {
+        email,
+        firstName,
+        lastName,
+        role,
+      }
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('user_role', role)
 
       setCurrentUser(user)
       setUserRole(role)
@@ -96,33 +80,30 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function login(email, password) {
+  async function login(role, email, password) {
     try {
-      const users = JSON.parse(localStorage.getItem('dummyAuth_users') || '{}')
-      const userData = users[email]
+      const response = await apiService.signin(role, email, password)
 
-      if (!userData) {
-        throw new Error('No account found with this email. Please sign up first.')
+      // Store JWT token
+      if (response.token) {
+        apiService.setToken(response.token)
       }
 
-      if (userData.password !== password) {
-        throw new Error('Incorrect password. Please try again.')
-      }
-
+      // Get user profile from backend
+      const profileData = await apiService.getProfile()
+      
       const user = {
-        uid: userData.uid,
-        email: userData.email,
-        displayName: userData.displayName,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        email,
+        role,
+        ...profileData.user,
       }
 
-      // Set current session
-      localStorage.setItem('dummyAuth_user', JSON.stringify(user))
-      localStorage.setItem('dummyAuth_role', userData.role)
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('user_role', role)
 
       setCurrentUser(user)
-      setUserRole(userData.role)
+      setUserRole(role)
 
       return { user }
     } catch (error) {
@@ -131,50 +112,27 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function loginWithGoogle() {
-    // For demo purposes, create a temporary user
-    const uid = `google_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const user = {
-      uid,
-      email: 'google.user@example.com',
-      displayName: 'Google User',
+  async function sendVerificationCode(email) {
+    try {
+      await apiService.sendVerificationCode(email)
+      return { success: true }
+    } catch (error) {
+      console.error('Send verification code error:', error)
+      throw error
     }
-
-    // Check if user exists
-    const users = JSON.parse(localStorage.getItem('dummyAuth_users') || '{}')
-    const existingUser = Object.values(users).find(u => u.email === user.email)
-
-    if (existingUser) {
-      const userObj = {
-        uid: existingUser.uid,
-        email: existingUser.email,
-        displayName: existingUser.displayName,
-      }
-      localStorage.setItem('dummyAuth_user', JSON.stringify(userObj))
-      localStorage.setItem('dummyAuth_role', existingUser.role || null)
-      setCurrentUser(userObj)
-      setUserRole(existingUser.role || null)
-    } else {
-      // First time Google login - need to set role
-      localStorage.setItem('dummyAuth_user', JSON.stringify(user))
-      localStorage.setItem('dummyAuth_role', '')
-      setCurrentUser(user)
-      setUserRole(null)
-    }
-
-    return { user }
   }
 
   async function logout() {
-    localStorage.removeItem('dummyAuth_user')
-    localStorage.removeItem('dummyAuth_role')
+    apiService.removeToken()
+    localStorage.removeItem('user')
+    localStorage.removeItem('user_role')
     setCurrentUser(null)
     setUserRole(null)
   }
 
   const refreshUserRole = async () => {
     if (currentUser) {
-      const storedRole = localStorage.getItem('dummyAuth_role')
+      const storedRole = localStorage.getItem('user_role')
       setUserRole(storedRole || null)
       return storedRole
     }
@@ -186,7 +144,7 @@ export function AuthProvider({ children }) {
     userRole,
     signup,
     login,
-    loginWithGoogle,
+    sendVerificationCode,
     logout,
     loading,
     refreshUserRole,
@@ -194,4 +152,3 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-

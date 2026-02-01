@@ -8,14 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { Modal } from '../components/ui/Modal'
 import { USER_ROLES } from '../types'
 import toast from 'react-hot-toast'
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Mail } from 'lucide-react'
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Signup() {
+  const [step, setStep] = useState(1) // 1: email, 2: code + details
   const [formData, setFormData] = useState({
     email: '',
+    verificationCode: '',
     password: '',
     confirmPassword: '',
     role: '',
@@ -24,10 +26,11 @@ export function Signup() {
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [codeSent, setCodeSent] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { signup } = useAuth()
+  const { signup, sendVerificationCode } = useAuth()
   const navigate = useNavigate()
 
   const validateEmail = (email) => {
@@ -40,8 +43,25 @@ export function Signup() {
     return null
   }
 
-  const validateForm = () => {
+  const validateStep1 = () => {
     const newErrors = {}
+    const emailError = validateEmail(formData.email)
+    if (emailError) {
+      newErrors.email = emailError
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const validateStep2 = () => {
+    const newErrors = {}
+
+    // Verification code validation
+    if (!formData.verificationCode) {
+      newErrors.verificationCode = 'Verification code is required'
+    } else if (!/^\d{6}$/.test(formData.verificationCode)) {
+      newErrors.verificationCode = 'Code must be 6 digits'
+    }
 
     // First name validation
     if (!formData.firstName.trim()) {
@@ -53,17 +73,11 @@ export function Signup() {
       newErrors.lastName = 'Last name is required'
     }
 
-    // Email validation
-    const emailError = validateEmail(formData.email)
-    if (emailError) {
-      newErrors.email = emailError
-    }
-
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
     }
 
     // Confirm password validation
@@ -101,10 +115,37 @@ export function Signup() {
     }
   }
 
+  const handleSendCode = async (e) => {
+    e.preventDefault()
+
+    if (!validateStep1()) {
+      toast.error('Please enter a valid email')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      await sendVerificationCode(formData.email)
+      toast.success('Verification code sent to your email!')
+      setCodeSent(true)
+      setStep(2)
+    } catch (error) {
+      let errorMsg = 'Failed to send verification code'
+      if (error.message) {
+        errorMsg = error.message
+      }
+      toast.error(errorMsg)
+      setErrors({ email: errorMsg })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!validateForm()) {
+    if (!validateStep2()) {
       toast.error('Please fix the errors in the form')
       return
     }
@@ -112,14 +153,16 @@ export function Signup() {
     setLoading(true)
 
     try {
-      await signup(formData.email, formData.password, formData.role, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        displayName: `${formData.firstName} ${formData.lastName}`,
-      })
+      await signup(
+        formData.role,
+        formData.verificationCode,
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      )
       
       setShowSuccessModal(true)
-      // Wait a bit longer to ensure Firestore write completes
       setTimeout(() => {
         const dashboardPaths = {
           [USER_ROLES.PROFESSOR]: '/dashboard/professor',
@@ -127,18 +170,11 @@ export function Signup() {
           [USER_ROLES.STUDENT]: '/dashboard/student',
           [USER_ROLES.ORGANIZATION]: '/dashboard/organization',
         }
-        // Use window.location to force a full page reload and refresh AuthContext
-        window.location.href = dashboardPaths[formData.role] || '/dashboard'
+        navigate(dashboardPaths[formData.role] || '/dashboard')
       }, 2000)
     } catch (error) {
       let errorMsg = 'Failed to create account'
-      if (error.code === 'auth/email-already-in-use') {
-        errorMsg = 'This email is already registered. Please use a different email or sign in.'
-      } else if (error.code === 'auth/invalid-email') {
-        errorMsg = 'Invalid email address. Please check your email and try again.'
-      } else if (error.code === 'auth/weak-password') {
-        errorMsg = 'Password is too weak. Please use a stronger password.'
-      } else if (error.message) {
+      if (error.message) {
         errorMsg = error.message
       }
       setErrorMessage(errorMsg)
@@ -162,82 +198,149 @@ export function Signup() {
           </div>
           <CardTitle className="text-center">Create an Account</CardTitle>
           <CardDescription className="text-center">
-            Join SolveX to start your research journey
+            {step === 1 ? 'Enter your email to get started' : 'Complete your registration'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          {/* Step 1: Email */}
+          {step === 1 && (
+            <form onSubmit={handleSendCode} className="space-y-4">
               <Input
-                type="text"
-                name="firstName"
-                label="First Name"
-                placeholder="John"
-                value={formData.firstName}
+                type="email"
+                name="email"
+                label="Email"
+                placeholder="you@example.com"
+                value={formData.email}
                 onChange={handleChange}
-                error={errors.firstName}
+                onBlur={handleBlur}
+                error={errors.email}
                 required
               />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Sending code...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Send Verification Code
+                  </span>
+                )}
+              </Button>
+            </form>
+          )}
+
+          {/* Step 2: Verification Code + Details */}
+          {step === 2 && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-800">
+                  <Mail className="w-4 h-4 inline mr-1" />
+                  A verification code has been sent to <strong>{formData.email}</strong>
+                </p>
+              </div>
+
               <Input
                 type="text"
-                name="lastName"
-                label="Last Name"
-                placeholder="Doe"
-                value={formData.lastName}
+                name="verificationCode"
+                label="Verification Code"
+                placeholder="Enter 6-digit code"
+                value={formData.verificationCode}
                 onChange={handleChange}
-                error={errors.lastName}
+                error={errors.verificationCode}
+                maxLength={6}
                 required
               />
-            </div>
-            <Input
-              type="email"
-              name="email"
-              label="Email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.email}
-              required
-            />
-            <Select
-              name="role"
-              label="Role"
-              value={formData.role}
-              onChange={handleChange}
-              error={errors.role}
-              required
-            >
-              <option value="">Select a role</option>
-              <option value={USER_ROLES.PROFESSOR}>Professor</option>
-              <option value={USER_ROLES.TEACHING_ASSISTANT}>Teaching Assistant</option>
-              <option value={USER_ROLES.STUDENT}>Student</option>
-              <option value={USER_ROLES.ORGANIZATION}>Organization Representative</option>
-            </Select>
-            <Input
-              type="password"
-              name="password"
-              label="Password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              required
-            />
-            <Input
-              type="password"
-              name="confirmPassword"
-              label="Confirm Password"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              required
-            />
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create Account'}
-            </Button>
-          </form>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  type="text"
+                  name="firstName"
+                  label="First Name"
+                  placeholder="John"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  error={errors.firstName}
+                  required
+                />
+                <Input
+                  type="text"
+                  name="lastName"
+                  label="Last Name"
+                  placeholder="Doe"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  error={errors.lastName}
+                  required
+                />
+              </div>
+
+              <Select
+                name="role"
+                label="Role"
+                value={formData.role}
+                onChange={handleChange}
+                error={errors.role}
+                required
+              >
+                <option value="">Select a role</option>
+                <option value={USER_ROLES.PROFESSOR}>Professor</option>
+                <option value={USER_ROLES.STUDENT}>Student</option>
+              </Select>
+
+              <Input
+                type="password"
+                name="password"
+                label="Password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                required
+              />
+
+              <Input
+                type="password"
+                name="confirmPassword"
+                label="Confirm Password"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                required
+              />
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-1/3"
+                  onClick={() => {
+                    setStep(1)
+                    setCodeSent(false)
+                  }}
+                  disabled={loading}
+                >
+                  Back
+                </Button>
+                <Button type="submit" className="w-2/3" disabled={loading}>
+                  {loading ? 'Creating account...' : 'Create Account'}
+                </Button>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-sm"
+                onClick={handleSendCode}
+                disabled={loading}
+              >
+                Resend verification code
+              </Button>
+            </form>
+          )}
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{' '}
