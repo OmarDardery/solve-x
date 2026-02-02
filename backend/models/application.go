@@ -43,3 +43,64 @@ func GetApplicationsByOpportunityID(db *gorm.DB, opportunityID uint) ([]Applicat
 		Error
 	return applications, err
 }
+
+// GetApplicationsByStudentID returns all applications submitted by a student
+func GetApplicationsByStudentID(db *gorm.DB, studentID uint) ([]Application, error) {
+	var applications []Application
+	err := db.
+		Preload("Student").
+		Preload("Opportunity").
+		Preload("Opportunity.Professor").
+		Where("student_id = ?", studentID).
+		Order("created_at DESC").
+		Find(&applications).
+		Error
+	return applications, err
+}
+
+// GetApplicationsByProfessorOpportunities returns all applications for opportunities created by a professor
+func GetApplicationsByProfessorOpportunities(db *gorm.DB, professorID uint) ([]Application, error) {
+	var applications []Application
+	err := db.
+		Preload("Student").
+		Preload("Opportunity").
+		Preload("Opportunity.Professor").
+		Joins("JOIN opportunities ON opportunities.id = applications.opportunity_id").
+		Where("opportunities.professor_id = ?", professorID).
+		Order("applications.created_at DESC").
+		Find(&applications).
+		Error
+	return applications, err
+}
+
+// GetApplicationByID returns an application by ID
+func GetApplicationByID(db *gorm.DB, id uint) (*Application, error) {
+	var application Application
+	err := db.
+		Preload("Student").
+		Preload("Opportunity").
+		Preload("Opportunity.Professor").
+		First(&application, id).
+		Error
+	return &application, err
+}
+
+// UpdateApplicationStatus updates the status of an application
+func UpdateApplicationStatus(db *gorm.DB, id uint, status string) (*Application, error) {
+	// Validate status
+	if status != StatusPending && status != StatusAccepted && status != StatusRejected {
+		return nil, gorm.ErrInvalidValue
+	}
+
+	application, err := GetApplicationByID(db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	application.Status = status
+	if err := db.Save(application).Error; err != nil {
+		return nil, err
+	}
+
+	return application, nil
+}

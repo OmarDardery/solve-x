@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '../components/ui/Button'
@@ -30,8 +30,26 @@ export function Signup() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { signup, sendVerificationCode } = useAuth()
+  const { signup, sendVerificationCode, currentUser, userRole } = useAuth()
   const navigate = useNavigate()
+
+  // Navigate after signup when auth state updates
+  useEffect(() => {
+    if (currentUser && userRole && showSuccessModal) {
+      // Navigate after showing success modal briefly
+      const timer = setTimeout(() => {
+        const dashboardPaths = {
+          [USER_ROLES.PROFESSOR]: '/dashboard/professor',
+          [USER_ROLES.TEACHING_ASSISTANT]: '/dashboard/ta',
+          [USER_ROLES.STUDENT]: '/dashboard/student',
+          [USER_ROLES.ORGANIZATION]: '/dashboard/organization',
+        }
+        navigate(dashboardPaths[userRole] || '/dashboard', { replace: true })
+      }, 2000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [currentUser, userRole, showSuccessModal, navigate])
 
   const validateEmail = (email) => {
     if (!email) {
@@ -163,15 +181,8 @@ export function Signup() {
       )
       
       setShowSuccessModal(true)
-      setTimeout(() => {
-        const dashboardPaths = {
-          [USER_ROLES.PROFESSOR]: '/dashboard/professor',
-          [USER_ROLES.TEACHING_ASSISTANT]: '/dashboard/ta',
-          [USER_ROLES.STUDENT]: '/dashboard/student',
-          [USER_ROLES.ORGANIZATION]: '/dashboard/organization',
-        }
-        navigate(dashboardPaths[formData.role] || '/dashboard')
-      }, 2000)
+      toast.success('Account created successfully!')
+      // Navigation will happen via useEffect when currentUser and userRole are set
     } catch (error) {
       let errorMsg = 'Failed to create account'
       if (error.message) {

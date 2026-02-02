@@ -53,7 +53,18 @@ class ApiService {
 
     try {
       const response = await fetch(url, config)
-      const data = await response.json()
+      
+      // Get response text first to debug
+      const text = await response.text()
+      
+      // Try to parse as JSON
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', text)
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`)
+      }
 
       if (!response.ok) {
         throw new Error(data.error || data.message || 'Request failed')
@@ -128,6 +139,82 @@ class ApiService {
    */
   async getProfile() {
     return this.get('/api/profile')
+  }
+
+  // ==================== OPPORTUNITIES ENDPOINTS ====================
+
+  /**
+   * Get all opportunities (public)
+   */
+  async getAllOpportunities() {
+    return this.get('/public/opportunities')
+  }
+
+  /**
+   * Get opportunity by ID (public)
+   */
+  async getOpportunityById(id) {
+    return this.get(`/public/opportunities/${id}`)
+  }
+
+  /**
+   * Get professor's opportunities (protected)
+   */
+  async getMyOpportunities() {
+    return this.get('/api/opportunities/me')
+  }
+
+  /**
+   * Create new opportunity (professor only)
+   */
+  async createOpportunity(data) {
+    return this.post('/api/opportunities', data)
+  }
+
+  /**
+   * Update opportunity (professor only)
+   */
+  async updateOpportunity(id, data) {
+    return this.put(`/api/opportunities/${id}`, data)
+  }
+
+  /**
+   * Delete opportunity (professor only)
+   */
+  async deleteOpportunity(id) {
+    return this.delete(`/api/opportunities/${id}`)
+  }
+
+  // ==================== APPLICATIONS ENDPOINTS ====================
+
+  /**
+   * Submit application (student only)
+   */
+  async createApplication(opportunityId) {
+    return this.post('/api/applications', { opportunity_id: opportunityId })
+  }
+
+  /**
+   * Get my applications
+   * For students: returns their applications
+   * For professors: returns applications for their opportunities
+   */
+  async getMyApplications() {
+    return this.get('/api/applications/me')
+  }
+
+  /**
+   * Update application status (professor only)
+   */
+  async updateApplicationStatus(applicationId, status) {
+    return this.put(`/api/applications/${applicationId}/status`, { status })
+  }
+
+  /**
+   * Delete application (student only)
+   */
+  async deleteApplication(opportunityId) {
+    return this.delete('/api/applications', { opportunity_id: opportunityId })
   }
 
   // ==================== PROTECTED ENDPOINTS ====================

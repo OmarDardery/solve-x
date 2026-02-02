@@ -92,16 +92,19 @@ export function AuthProvider({ children }) {
       // Get user profile from backend
       const profileData = await apiService.getProfile()
       
+      // Handle both response structures
+      const userData = profileData.user || profileData
       const user = {
         email,
         role,
-        ...profileData.user,
+        ...userData,
       }
 
       // Store user data
       localStorage.setItem('user', JSON.stringify(user))
       localStorage.setItem('user_role', role)
 
+      // Update state synchronously
       setCurrentUser(user)
       setUserRole(role)
 

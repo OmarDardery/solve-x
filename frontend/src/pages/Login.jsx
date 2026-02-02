@@ -34,26 +34,16 @@ export function Login() {
 
   // Navigate after login when userRole is available
   useEffect(() => {
-    if (currentUser && !authLoading && !loading) {
-      // Small delay to ensure token is stored
-      const timer = setTimeout(() => {
-        if (userRole) {
-          const dashboardPath = getDashboardPath(userRole)
-          if (!from || from === '/login' || from === '/') {
-            navigate(dashboardPath, { replace: true })
-          } else {
-            navigate(from, { replace: true })
-          }
-        } else {
-          if (location.pathname !== '/select-role') {
-            navigate('/select-role', { replace: true })
-          }
-        }
-      }, 500)
-
-      return () => clearTimeout(timer)
+    if (currentUser && userRole && !authLoading) {
+      // Immediately navigate to dashboard - no delay needed
+      const dashboardPath = getDashboardPath(userRole)
+      if (!from || from === '/login' || from === '/') {
+        navigate(dashboardPath, { replace: true })
+      } else {
+        navigate(from, { replace: true })
+      }
     }
-  }, [currentUser, userRole, authLoading, loading, navigate, from, location.pathname])
+  }, [currentUser, userRole, authLoading, navigate, from])
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

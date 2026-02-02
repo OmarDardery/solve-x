@@ -35,7 +35,11 @@ func main() {
 	// Initialize Gin router
 	server := gin.Default()
 
-	// Configure CORS
+	// Disable trailing slash redirect to avoid CORS issues
+	server.RedirectTrailingSlash = false
+	server.RedirectFixedPath = false
+
+	// Configure CORS - must be before routes
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -65,15 +69,20 @@ func main() {
 	auth.POST("/sign-in/:role", routes.SignInHandler(db))
 	auth.POST("/send-code", routes.SendCodeHandler(db, &verificationCodes, mailman))
 
+	// Public routes (no authentication required)
+	public := server.Group("/public")
+	routes.RegisterPublicRoutes(public, db)
+
 	// Protected routes
 	protected := server.Group("/api")
 	protected.Use(middleware.JWTMiddleware(db))
 
-	// Example protected route
+	// Get user profile - protected route
 	protected.GET("/profile", func(c *gin.Context) {
 		role, _ := c.Get("role")
 		user, _ := c.Get("user")
 
+		// Return both role and user for frontend
 		c.JSON(200, gin.H{
 			"role": role,
 			"user": user,

@@ -151,6 +151,33 @@ func registerProfessorRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 // ------------------ OPPORTUNITIES ------------------
 
 func registerOpportunityRoutes(rg *gin.RouterGroup, db *gorm.DB) {
+	rg.POST("/", func(c *gin.Context) {
+		if !requireRole(c, "professor") {
+			return
+		}
+		prof, _ := getUser[models.Professor](c)
+
+		input, ok := bindJSON[struct {
+			Name         string `json:"name" binding:"required"`
+			Details      string `json:"details"`
+			Requirements string `json:"requirements"`
+			Reward       string `json:"reward"`
+			Type         string `json:"type" binding:"required"`
+			TagIDs       []uint `json:"tag_ids"`
+		}](c)
+		if !ok {
+			return
+		}
+
+		opportunity, err := models.CreateOpportunity(db, prof.ID, input.Name, input.Details, input.Requirements, input.Reward, input.Type, input.TagIDs)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, opportunity)
+	})
+
 	rg.GET("/:id", func(c *gin.Context) {
 		op, err := models.GetOpportunityByID(db, uintFromParam(c.Param("id")))
 		if err != nil {
@@ -220,6 +247,97 @@ func updateOrDeleteOpportunity(db *gorm.DB, action string) gin.HandlerFunc {
 // ------------------ APPLICATIONS ------------------
 
 func registerApplicationRoutes(rg *gin.RouterGroup, db *gorm.DB) {
+	// POST - Student submits an application
+	rg.POST("/", func(c *gin.Context) {
+		if !requireRole(c, "student") {
+			return
+		}
+		student, _ := getUser[models.Student](c)
+
+		input, ok := bindJSON[struct {
+			OpportunityID uint `json:"opportunity_id" binding:"required"`
+		}](c)
+		if !ok {
+			return
+		}
+
+		// Check if opportunity exists
+		_, err := models.GetOpportunityByID(db, input.OpportunityID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "opportunity not found"})
+			return
+		}
+
+		// Create application
+		if err := student.CreateApplication(db, input.OpportunityID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"message": "application submitted successfully"})
+	})
+
+	// GET /me - Get applications (student: their apps, professor: apps for their opportunities)
+	rg.GET("/me", func(c *gin.Context) {
+		role, _ := c.Get("role")
+
+		if role == "student" {
+			student, _ := getUser[models.Student](c)
+			apps, err := models.GetApplicationsByStudentID(db, student.ID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, apps)
+		} else if role == "professor" {
+			prof, _ := getUser[models.Professor](c)
+			apps, err := models.GetApplicationsByProfessorOpportunities(db, prof.ID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, apps)
+		} else {
+			c.JSON(http.StatusForbidden, gin.H{"error": "only students and professors can access applications"})
+		}
+	})
+
+	// PUT /:id/status - Professor updates application status
+	rg.PUT("/:id/status", func(c *gin.Context) {
+		if !requireRole(c, "professor") {
+			return
+		}
+		prof, _ := getUser[models.Professor](c)
+
+		appID := uintFromParam(c.Param("id"))
+		app, err := models.GetApplicationByID(db, appID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "application not found"})
+			return
+		}
+
+		// Verify professor owns the opportunity
+		if app.Opportunity.ProfessorID != prof.ID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "cannot modify applications for opportunities you don't own"})
+			return
+		}
+
+		input, ok := bindJSON[struct {
+			Status string `json:"status" binding:"required"`
+		}](c)
+		if !ok {
+			return
+		}
+
+		updatedApp, err := models.UpdateApplicationStatus(db, appID, input.Status)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid status value"})
+			return
+		}
+
+		c.JSON(http.StatusOK, updatedApp)
+	})
+
 	rg.GET("/opportunity/:id", func(c *gin.Context) {
 		if !requireRole(c, "professor") {
 			return

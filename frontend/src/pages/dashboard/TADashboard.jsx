@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { dummyDataService } from '../../services/dummyDataService'
+import { apiService } from '../../services/api'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -9,13 +9,11 @@ import { ProjectForm } from '../../components/forms/ProjectForm'
 import { Plus, BookOpen, Users, FileText, TrendingUp, Briefcase, ExternalLink, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { APPLICATION_STATUS } from '../../types'
 
 export function TADashboard() {
   const { currentUser } = useAuth()
   const [opportunities, setOpportunities] = useState([])
   const [applications, setApplications] = useState([])
-  const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
@@ -30,19 +28,14 @@ export function TADashboard() {
         return
       }
 
-      // Fetch all opportunities created by this TA (projects)
-      const projectsData = dummyDataService.getProjects({ createdBy: currentUser.uid })
-      const projectsWithType = projectsData.map(p => ({ ...p, type: 'project' }))
+      // Fetch TA's opportunities
+      const oppsData = await apiService.getMyOpportunities()
 
       // Fetch applications for TA's opportunities
-      const allApplications = dummyDataService.getApplicationsForUserOpportunities(currentUser.uid, 'ta')
+      const appsData = await apiService.getMyApplications()
 
-      // Fetch reports sent to this TA
-      const reportsData = dummyDataService.getReports({ recipientId: currentUser.uid })
-
-      setOpportunities(projectsWithType)
-      setApplications(allApplications)
-      setReports(reportsData)
+      setOpportunities(oppsData)
+      setApplications(appsData)
     } catch (error) {
       console.error('Error fetching data:', error)
       toast.error('Failed to fetch data')
@@ -51,8 +44,8 @@ export function TADashboard() {
     }
   }
 
-  const publishedOpportunities = opportunities.filter((o) => o.published)
-  const pendingApplications = applications.filter((a) => a.status === APPLICATION_STATUS.PENDING)
+  const publishedOpportunities = opportunities
+  const pendingApplications = applications.filter((a) => a.status === 'pending')
 
   const stats = [
     {

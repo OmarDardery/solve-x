@@ -23,6 +23,46 @@ type Opportunity struct {
 	Type string `json:"type" gorm:"type:TEXT CHECK(type IN ('research','project','internship'));not null"`
 }
 
+// CreateOpportunity creates a new opportunity
+func CreateOpportunity(db *gorm.DB, professorID uint, name, details, requirements, reward, opType string, tagIDs []uint) (*Opportunity, error) {
+	// Validate type
+	if opType != "research" && opType != "project" && opType != "internship" {
+		return nil, errors.New("invalid opportunity type")
+	}
+
+	opportunity := Opportunity{
+		ProfessorID:  professorID,
+		Name:         name,
+		Details:      details,
+		Requirements: requirements,
+		Reward:       reward,
+		Type:         opType,
+	}
+
+	// Create the opportunity
+	if err := db.Create(&opportunity).Error; err != nil {
+		return nil, err
+	}
+
+	// Associate tags if provided
+	if len(tagIDs) > 0 {
+		var tags []Tag
+		if err := db.Find(&tags, tagIDs).Error; err != nil {
+			return nil, err
+		}
+		if err := db.Model(&opportunity).Association("RequirementTags").Append(&tags); err != nil {
+			return nil, err
+		}
+	}
+
+	// Reload with associations
+	if err := db.Preload("Professor").Preload("RequirementTags").First(&opportunity, opportunity.ID).Error; err != nil {
+		return nil, err
+	}
+
+	return &opportunity, nil
+}
+
 func GetOpportunityByID(db *gorm.DB, id uint) (*Opportunity, error) {
 	var opportunity Opportunity
 	if err := db.Preload("Professor").Preload("RequirementTags").First(&opportunity, id).Error; err != nil {
@@ -81,6 +121,18 @@ func GetOpportunitiesByProfessorID(db *gorm.DB, professorID uint) ([]Opportunity
 
 	if len(opportunities) == 0 {
 		return nil, errors.New("no opportunities found for this professor")
+	}
+
+	return opportunities, nil
+}
+
+// GetAllOpportunities returns all opportunities
+func GetAllOpportunities(db *gorm.DB) ([]Opportunity, error) {
+	var opportunities []Opportunity
+	if err := db.Preload("Professor").Preload("RequirementTags").
+		Order("created_at DESC").
+		Find(&opportunities).Error; err != nil {
+		return nil, err
 	}
 
 	return opportunities, nil

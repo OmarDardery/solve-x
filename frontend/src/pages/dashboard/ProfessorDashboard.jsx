@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { dummyDataService } from '../../services/dummyDataService'
+import { apiService } from '../../services/api'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -15,7 +15,6 @@ export function ProfessorDashboard() {
   const { currentUser } = useAuth()
   const [opportunities, setOpportunities] = useState([])
   const [applications, setApplications] = useState([])
-  const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
@@ -30,19 +29,14 @@ export function ProfessorDashboard() {
         return
       }
 
-      // Fetch all opportunities created by this professor (projects)
-      const projectsData = dummyDataService.getProjects({ createdBy: currentUser.uid })
-      const projectsWithType = projectsData.map(p => ({ ...p, type: 'project' }))
+      // Fetch professor's opportunities
+      const oppsData = await apiService.getMyOpportunities()
 
       // Fetch applications for professor's opportunities
-      const allApplications = dummyDataService.getApplicationsForUserOpportunities(currentUser.uid, 'professor')
+      const appsData = await apiService.getMyApplications()
 
-      // Fetch reports sent to this professor
-      const reportsData = dummyDataService.getReports({ recipientId: currentUser.uid })
-
-      setOpportunities(projectsWithType)
-      setApplications(allApplications)
-      setReports(reportsData)
+      setOpportunities(oppsData)
+      setApplications(appsData)
     } catch (error) {
       console.error('Error fetching data:', error)
       toast.error('Failed to fetch data')
@@ -51,8 +45,8 @@ export function ProfessorDashboard() {
     }
   }
 
-  const publishedOpportunities = opportunities.filter((o) => o.published)
-  const pendingApplications = applications.filter((a) => a.status === APPLICATION_STATUS.PENDING)
+  const publishedOpportunities = opportunities
+  const pendingApplications = applications.filter((a) => a.status === 'pending')
 
   const stats = [
     {
@@ -154,19 +148,19 @@ export function ProfessorDashboard() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{opportunity.title}</h3>
-                          <Badge variant="success">Published</Badge>
-                          {oppApplications.length > 0 && (
-                            <Badge variant="default">{oppApplications.length} applications</Badge>
+                          <h3 className="text-lg font-semibold">{opportunity.name}</h3>
+                          <Badge variant="success">Active</Badge>
+                          {applications.filter(a => a.opportunity_id === opportunity.ID).length > 0 && (
+                            <Badge variant="default">{applications.filter(a => a.opportunity_id === opportunity.ID).length} applications</Badge>
                           )}
                         </div>
-                        <p className="text-gray-600 mb-3 line-clamp-2">{opportunity.description}</p>
+                        <p className="text-gray-600 mb-3 line-clamp-2">{opportunity.details}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>{opportunity.positions || 0} positions</span>
+                          <span>{opportunity.type}</span>
                           <span>•</span>
-                          <span>{opportunity.skills?.length || 0} skills required</span>
+                          <span>{opportunity.requirement_tags?.length || 0} tags</span>
                           <span>•</span>
-                          <span>{oppApplications.filter(a => a.status === APPLICATION_STATUS.PENDING).length} pending</span>
+                          <span>{applications.filter(a => a.opportunity_id === opportunity.ID && a.status === 'pending').length} pending</span>
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
@@ -208,112 +202,36 @@ export function ProfessorDashboard() {
               {applications.slice(0, 5).map((application) => {
                 const getStatusBadge = (status) => {
                   const variants = {
-                    [APPLICATION_STATUS.PENDING]: 'default',
-                    [APPLICATION_STATUS.ACCEPTED]: 'success',
-                    [APPLICATION_STATUS.WAITLISTED]: 'warning',
-                    [APPLICATION_STATUS.REJECTED]: 'danger',
+                    pending: 'default',
+                    accepted: 'success',
+                    rejected: 'danger',
                   }
                   return variants[status] || 'default'
                 }
                 return (
                   <div
-                    key={application.id}
+                    key={application.ID}
                     className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{application.projectTitle || application.opportunityTitle || 'Application'}</h3>
+                          <h3 className="text-lg font-semibold">{application.opportunity?.name || 'Opportunity'}</h3>
                           <Badge variant={getStatusBadge(application.status)}>
                             {application.status}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 mb-2 line-clamp-2">{application.description || 'No description provided'}</p>
                         <p className="text-sm text-gray-500">
-                          Applied on {application.createdAt ? new Date(application.createdAt).toLocaleDateString() : 'N/A'}
-                          {application.studentName && ` • Student: ${application.studentName}`}
+                          {application.student?.first_name} {application.student?.last_name} • Applied on {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>
-                      <Button variant="ghost" size="sm" as={Link} to={`/applications/${application.id}`}>
+                      <Button variant="ghost" size="sm" as={Link} to="/applications">
                         View
                       </Button>
                     </div>
                   </div>
                 )
               })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Received Reports */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Received Reports</CardTitle>
-            <Button variant="ghost" size="sm" as={Link} to="/reports">
-              View All
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
-            </div>
-          ) : reports.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No reports received yet. Reports submitted by students will appear here.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {reports.slice(0, 5).map((report) => (
-                <div
-                  key={report.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-gray-400" />
-                      <span className="font-semibold">
-                        Week {report.week}, {report.year}
-                      </span>
-                    </div>
-                    {report.studentName && (
-                      <Badge variant="default">{report.studentName}</Badge>
-                    )}
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    {report.studentName && (
-                      <div>
-                        <span className="font-medium">Student:</span>
-                        <p className="text-gray-600">{report.studentName}</p>
-                      </div>
-                    )}
-                    <div>
-                      <span className="font-medium">Accomplishments:</span>
-                      <p className="text-gray-600 line-clamp-2">{report.accomplishments}</p>
-                    </div>
-                    {report.driveLink && (
-                      <div>
-                        <span className="font-medium">Report Document:</span>
-                        <div className="mt-1">
-                          <a
-                            href={report.driveLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary-500 hover:text-primary-600 text-sm flex items-center gap-1"
-                          >
-                            View Document
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           )}
         </CardContent>

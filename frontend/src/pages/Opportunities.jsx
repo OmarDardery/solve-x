@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { dummyDataService } from '../services/dummyDataService'
+import { apiService } from '../services/api'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -28,11 +28,11 @@ export function Opportunities() {
   const fetchOpportunities = async () => {
     setLoading(true)
     try {
-      const all = dummyDataService.getAllPublishedOpportunities()
-      setOpportunities(all)
-      setFilteredOpportunities(all)
+      const data = await apiService.getAllOpportunities()
+      setOpportunities(data)
+      setFilteredOpportunities(data)
     } catch (error) {
-      console.error('Unexpected error fetching opportunities:', error)
+      console.error('Error fetching opportunities:', error)
       toast.error('Failed to fetch opportunities')
     } finally {
       setLoading(false)
@@ -46,8 +46,8 @@ export function Opportunities() {
     if (searchTerm) {
       filtered = filtered.filter(
         (opp) =>
-          opp.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          opp.description?.toLowerCase().includes(searchTerm.toLowerCase())
+          opp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          opp.details?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
@@ -56,13 +56,11 @@ export function Opportunities() {
       filtered = filtered.filter((opp) => opp.type === typeFilter)
     }
 
-    // Skill filter
+    // Skill filter (search in requirements text)
     if (skillFilter) {
       filtered = filtered.filter((opp) => {
-        const skills = opp.skills || []
-        return skills.some((skill) =>
-          skill.toLowerCase().includes(skillFilter.toLowerCase())
-        )
+        const requirements = opp.requirements || ''
+        return requirements.toLowerCase().includes(skillFilter.toLowerCase())
       })
     }
 
@@ -71,9 +69,9 @@ export function Opportunities() {
 
   const getTypeLabel = (type) => {
     const labels = {
-      project: 'Research Project',
-      student_project: 'Student Project',
-      opportunity: 'Organization Opportunity',
+      research: 'Research',
+      project: 'Project',
+      internship: 'Internship',
     }
     return labels[type] || type
   }
@@ -100,9 +98,9 @@ export function Opportunities() {
             </div>
             <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
               <option value="all">All Types</option>
-              <option value="project">Research Projects</option>
-              <option value="student_project">Student Projects</option>
-              <option value="opportunity">Organization Opportunities</option>
+              <option value="research">Research</option>
+              <option value="project">Project</option>
+              <option value="internship">Internship</option>
             </Select>
             <Input
               placeholder="Filter by skill..."
@@ -127,27 +125,24 @@ export function Opportunities() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOpportunities.map((opportunity) => (
-            <Card key={opportunity.id} hover>
+            <Card key={opportunity.ID} hover>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <Badge variant="primary">{getTypeLabel(opportunity.type)}</Badge>
-                  {opportunity.type === 'opportunity' && (
-                    <Badge>{opportunity.type}</Badge>
-                  )}
                 </div>
-                <h3 className="text-xl font-semibold mb-2 line-clamp-2">{opportunity.title}</h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{opportunity.description}</p>
+                <h3 className="text-xl font-semibold mb-2 line-clamp-2">{opportunity.name}</h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{opportunity.details}</p>
                 
-                {opportunity.skills && opportunity.skills.length > 0 && (
+                {opportunity.requirement_tags && opportunity.requirement_tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {opportunity.skills.slice(0, 3).map((skill, idx) => (
+                    {opportunity.requirement_tags.slice(0, 3).map((tag, idx) => (
                       <Badge key={idx} variant="default" className="text-xs">
-                        {skill}
+                        {tag.name}
                       </Badge>
                     ))}
-                    {opportunity.skills.length > 3 && (
+                    {opportunity.requirement_tags.length > 3 && (
                       <Badge variant="default" className="text-xs">
-                        +{opportunity.skills.length - 3}
+                        +{opportunity.requirement_tags.length - 3}
                       </Badge>
                     )}
                   </div>
@@ -155,10 +150,9 @@ export function Opportunities() {
                 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-500">
-                    {opportunity.positions ? `${opportunity.positions} positions` : 'Open'}
+                    {opportunity.professor?.first_name} {opportunity.professor?.last_name}
                   </div>
-                  <Button size="sm" as={Link} to={`/opportunities/${opportunity.id}`}>
-                    View Details
+                  <Button size="sm" as={Link} to={`/opportunities/${opportunity.ID}`}>
                     <ExternalLink className="w-4 h-4 ml-2" />
                   </Button>
                 </div>

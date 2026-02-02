@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { dummyDataService } from '../services/dummyDataService'
+import { apiService } from '../services/api'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -26,22 +26,8 @@ export function Applications() {
         return
       }
 
-      let appsData = []
-      
-      if (userRole === 'student') {
-        // Students see their own applications
-        appsData = dummyDataService.getApplications({ studentId: currentUser.uid })
-      } else if (userRole === 'professor' || userRole === 'ta') {
-        // Professors/TAs see applications to their opportunities
-        appsData = dummyDataService.getApplicationsForUserOpportunities(currentUser.uid, userRole)
-      } else if (userRole === 'organization_representative') {
-        // Organizations see applications to their opportunities
-        appsData = dummyDataService.getApplicationsForUserOpportunities(currentUser.uid, userRole)
-      } else {
-        // Fallback for other roles - show all
-        appsData = dummyDataService.getApplications({})
-      }
-
+      // GET /api/applications/me returns applications based on role
+      const appsData = await apiService.getMyApplications()
       setApplications(appsData)
     } catch (error) {
       console.error('Error fetching applications:', error)
@@ -53,9 +39,7 @@ export function Applications() {
 
   const updateStatus = async (applicationId, newStatus) => {
     try {
-      dummyDataService.updateApplication(applicationId, {
-        status: newStatus,
-      })
+      await apiService.updateApplicationStatus(applicationId, newStatus)
       toast.success('Application status updated')
       fetchApplications()
     } catch (error) {
@@ -129,56 +113,41 @@ export function Applications() {
           {filteredApplications.map((application) => {
             const StatusIcon = getStatusIcon(application.status)
             return (
-              <Card key={application.id}>
+              <Card key={application.ID}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <StatusIcon className="w-5 h-5 text-gray-400" />
-                        <h3 className="text-lg font-semibold">{application.projectTitle || 'Project'}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {application.opportunity?.name || 'Opportunity'}
+                        </h3>
                         <Badge variant={getStatusBadge(application.status)}>
                           {application.status}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 mb-3">{application.description || 'No description provided'}</p>
+                      {application.opportunity?.details && (
+                        <p className="text-gray-600 mb-3">{application.opportunity.details.substring(0, 150)}...</p>
+                      )}
                       <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                         <span>
-                          Applied: {application.createdAt ? new Date(application.createdAt).toLocaleDateString() : 'N/A'}
+                          Applied: {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </span>
-                        {application.studentName && (
-                          <span>Student: {application.studentName}</span>
+                        {application.student && (
+                          <span>Student: {application.student.first_name} {application.student.last_name}</span>
                         )}
                       </div>
-                      {application.driveLinks && application.driveLinks.length > 0 && (
-                        <div className="mt-3">
-                          <p className="text-sm font-medium mb-2">Attachments:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {application.driveLinks.map((link, idx) => (
-                              <a
-                                key={idx}
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-primary-500 hover:text-primary-600 underline"
-                              >
-                                Document {idx + 1}
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                     {canManageStatus && (
                       <div className="flex flex-col gap-2 ml-4">
                         <Select
                           value={application.status}
-                          onChange={(e) => updateStatus(application.id, e.target.value)}
+                          onChange={(e) => updateStatus(application.ID, e.target.value)}
                           className="w-40"
                         >
-                          <option value={APPLICATION_STATUS.PENDING}>Pending</option>
-                          <option value={APPLICATION_STATUS.ACCEPTED}>Accepted</option>
-                          <option value={APPLICATION_STATUS.WAITLISTED}>Waitlisted</option>
-                          <option value={APPLICATION_STATUS.REJECTED}>Rejected</option>
+                          <option value="pending">Pending</option>
+                          <option value="accepted">Accepted</option>
+                          <option value="rejected">Rejected</option>
                         </Select>
                       </div>
                     )}
