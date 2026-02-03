@@ -189,9 +189,16 @@ class ApiService {
 
   /**
    * Submit application (student only)
+   * @param {number} opportunityId - The ID of the opportunity
+   * @param {string} message - Optional message to the professor
+   * @param {string} resumeLink - Optional link to resume
    */
-  async createApplication(opportunityId) {
-    return this.post('/api/applications', { opportunity_id: opportunityId })
+  async createApplication(opportunityId, message = '', resumeLink = '') {
+    return this.post('/api/applications', { 
+      opportunity_id: opportunityId,
+      message: message,
+      resume_link: resumeLink
+    })
   }
 
   /**

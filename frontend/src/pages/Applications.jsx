@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { Select } from '../components/ui/Input'
 import { APPLICATION_STATUS } from '../types'
-import { FileText, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react'
+import { FileText, CheckCircle, Clock, XCircle, AlertCircle, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export function Applications() {
@@ -129,6 +129,30 @@ export function Applications() {
                       {application.opportunity?.details && (
                         <p className="text-gray-600 mb-3">{application.opportunity.details.substring(0, 150)}...</p>
                       )}
+                      
+                      {/* Application Message */}
+                      {application.message && (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
+                          <p className="text-sm font-medium text-gray-700 mb-1">Message:</p>
+                          <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.message}</p>
+                        </div>
+                      )}
+                      
+                      {/* Resume Link */}
+                      {application.resume_link && (
+                        <div className="mb-3">
+                          <a 
+                            href={application.resume_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            View Resume/CV
+                          </a>
+                        </div>
+                      )}
+                      
                       <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                         <span>
                           Applied: {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}

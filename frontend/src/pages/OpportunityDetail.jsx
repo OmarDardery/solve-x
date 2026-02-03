@@ -20,6 +20,8 @@ export function OpportunityDetail() {
   const [applying, setApplying] = useState(false)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
+  const [applicationMessage, setApplicationMessage] = useState('')
+  const [resumeLink, setResumeLink] = useState('')
 
   useEffect(() => {
     fetchOpportunity()
@@ -54,10 +56,12 @@ export function OpportunityDetail() {
   const handleApply = async () => {
     setApplying(true)
     try {
-      await apiService.createApplication(parseInt(id))
+      await apiService.createApplication(parseInt(id), applicationMessage, resumeLink)
       toast.success('Application submitted successfully!')
       setShowApplyModal(false)
       setHasApplied(true)
+      setApplicationMessage('')
+      setResumeLink('')
     } catch (error) {
       console.error('Error submitting application:', error)
       toast.error(error.message || 'Failed to submit application')
@@ -88,7 +92,7 @@ export function OpportunityDetail() {
   }
 
   const isStudent = userRole === 'student'
-  const canApply = isStudent && !hasApplied && opportunity.published
+  const canApply = isStudent && !hasApplied
 
   return (
     <div className="space-y-8">
@@ -219,8 +223,24 @@ export function OpportunityDetail() {
             <p className="text-sm text-gray-600 mb-4">{opportunity.details?.substring(0, 200)}...</p>
           </div>
 
-          <p className="text-gray-700">
-            Are you sure you want to apply to this opportunity?
+          <Textarea
+            label="Message to Professor"
+            placeholder="Introduce yourself and explain why you're interested in this opportunity..."
+            value={applicationMessage}
+            onChange={(e) => setApplicationMessage(e.target.value)}
+            rows={5}
+          />
+
+          <Input
+            label="Resume/CV Link"
+            placeholder="https://drive.google.com/... or https://linkedin.com/in/..."
+            value={resumeLink}
+            onChange={(e) => setResumeLink(e.target.value)}
+            type="url"
+          />
+
+          <p className="text-sm text-gray-500">
+            Tip: You can link to your resume on Google Drive, Dropbox, or your LinkedIn profile.
           </p>
 
           <div className="flex gap-3 pt-4">
@@ -229,7 +249,7 @@ export function OpportunityDetail() {
               disabled={applying}
               className="flex-1"
             >
-              {applying ? 'Submitting...' : 'Confirm Application'}
+              {applying ? 'Submitting...' : 'Submit Application'}
             </Button>
             <Button
               variant="ghost"

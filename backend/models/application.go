@@ -8,6 +8,8 @@ type Application struct {
 	Student       *Student     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:StudentID;references:ID"`
 	OpportunityID uint         `json:"opportunity_id" gorm:"not null"`
 	Opportunity   *Opportunity `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:OpportunityID;references:ID"`
+	Message       string       `json:"message" gorm:"type:text"`
+	ResumeLink    string       `json:"resume_link"`
 	Status        string       `json:"status" gorm:"type:TEXT CHECK(status IN ('pending','accepted','rejected'));not null;default:'pending'"`
 }
 
@@ -17,10 +19,12 @@ const (
 	StatusRejected = "rejected"
 )
 
-func (s Student) CreateApplication(db *gorm.DB, opportunityID uint) error {
+func (s Student) CreateApplication(db *gorm.DB, opportunityID uint, message, resumeLink string) error {
 	application := Application{
 		StudentID:     s.ID,
 		OpportunityID: opportunityID,
+		Message:       message,
+		ResumeLink:    resumeLink,
 		Status:        StatusPending,
 	}
 	return db.Create(&application).Error

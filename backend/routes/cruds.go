@@ -277,7 +277,9 @@ func registerApplicationRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 		}
 
 		input, ok := bindJSON[struct {
-			OpportunityID uint `json:"opportunity_id" binding:"required"`
+			OpportunityID uint   `json:"opportunity_id" binding:"required"`
+			Message       string `json:"message"`
+			ResumeLink    string `json:"resume_link"`
 		}](c)
 		if !ok {
 			return
@@ -290,8 +292,8 @@ func registerApplicationRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 			return
 		}
 
-		// Create application
-		if err := student.CreateApplication(db, input.OpportunityID); err != nil {
+		// Create application with message and resume link
+		if err := student.CreateApplication(db, input.OpportunityID, input.Message, input.ResumeLink); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
