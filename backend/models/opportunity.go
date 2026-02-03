@@ -17,7 +17,7 @@ type Opportunity struct {
 	Requirements string     `json:"requirements" gorm:"type:text"`
 	Reward       string     `json:"reward" gorm:"type:text"`
 	// Relationship: each opportunity can have multiple tags
-	RequirementTags []Tag `gorm:"many2many:opportunity_tags;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	RequirementTags []Tag `json:"requirement_tags" gorm:"many2many:opportunity_tags;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	// Enforce type constraint
 	Type string `json:"type" gorm:"type:TEXT CHECK(type IN ('research','project','internship'));not null"`

@@ -139,10 +139,10 @@ export function ProfessorDashboard() {
           ) : (
             <div className="space-y-4">
               {publishedOpportunities.slice(0, 5).map((opportunity) => {
-                const oppApplications = applications.filter(a => a.opportunityId === opportunity.id)
+                const oppApplications = applications.filter(a => a.opportunity_id === opportunity.ID)
                 return (
                   <div
-                    key={opportunity.id}
+                    key={opportunity.ID}
                     className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
                   >
                     <div className="flex justify-between items-start">
@@ -164,7 +164,7 @@ export function ProfessorDashboard() {
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
-                        <Button variant="ghost" size="sm" as={Link} to={`/opportunities/${opportunity.id}`}>
+                        <Button variant="ghost" size="sm" as={Link} to={`/opportunities/${opportunity.ID}`}>
                           View
                         </Button>
                       </div>

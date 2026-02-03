@@ -11,9 +11,7 @@ import { SelectRole } from './pages/SelectRole'
 
 // Dashboard Pages
 import { ProfessorDashboard } from './pages/dashboard/ProfessorDashboard'
-import { TADashboard } from './pages/dashboard/TADashboard'
 import { StudentDashboard } from './pages/dashboard/StudentDashboard'
-import { OrganizationDashboard } from './pages/dashboard/OrganizationDashboard'
 
 // Feature Pages
 import { Opportunities } from './pages/Opportunities'
@@ -52,31 +50,11 @@ function App() {
           }
         />
         <Route
-          path="/dashboard/ta"
-          element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.TEACHING_ASSISTANT]}>
-              <Layout>
-                <TADashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/dashboard/student"
           element={
             <ProtectedRoute allowedRoles={[USER_ROLES.STUDENT]}>
               <Layout>
                 <StudentDashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/organization"
-          element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.ORGANIZATION]}>
-              <Layout>
-                <OrganizationDashboard />
               </Layout>
             </ProtectedRoute>
           }

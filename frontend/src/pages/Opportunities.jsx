@@ -134,7 +134,7 @@ export function Opportunities() {
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">{opportunity.details}</p>
                 
                 {opportunity.requirement_tags && opportunity.requirement_tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-1 mb-3">
                     {opportunity.requirement_tags.slice(0, 3).map((tag, idx) => (
                       <Badge key={idx} variant="default" className="text-xs">
                         {tag.name}

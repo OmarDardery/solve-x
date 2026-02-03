@@ -715,7 +715,7 @@ func registerNotificationRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 func registerTagRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	// POST - Create new tag (professor only)
-	rg.POST("/", func(c *gin.Context) {
+	rg.POST("", func(c *gin.Context) {
 		if !requireRole(c, "professor") {
 			return
 		}
