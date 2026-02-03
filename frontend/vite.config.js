@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ['localhost', 'solvex.dardery.work'],
     port: 3000,
     open: true,
   },
