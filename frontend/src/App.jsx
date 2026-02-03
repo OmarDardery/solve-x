@@ -20,7 +20,6 @@ import { Opportunities } from './pages/Opportunities'
 import { OpportunityDetail } from './pages/OpportunityDetail'
 import { Applications } from './pages/Applications'
 import { WeeklyReports } from './pages/WeeklyReports'
-import { AddDummyData } from './pages/AddDummyData'
 
 import { USER_ROLES } from './types'
 
@@ -120,16 +119,6 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <WeeklyReports />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add-dummy-data"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AddDummyData />
               </Layout>
             </ProtectedRoute>
           }

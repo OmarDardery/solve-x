@@ -29,13 +29,12 @@ export const PROJECT_TYPES = {
 }
 
 /**
- * Opportunity types for organizations
+ * Opportunity types (must match backend validation)
  */
 export const OPPORTUNITY_TYPES = {
-  COURSE: 'course',
-  WORKSHOP: 'workshop',
-  COMPETITION: 'competition',
-  TRAINING: 'training',
+  RESEARCH: 'research',
+  PROJECT: 'project',
+  INTERNSHIP: 'internship',
 }
 
 

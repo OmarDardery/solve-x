@@ -25,7 +25,16 @@ func main() {
 	defer closer()
 
 	// Auto-migrate models
-	if err := db.AutoMigrate(&models.Professor{}, &models.Tag{}, &models.Student{}, &models.Coins{}, &models.Opportunity{}, &models.Application{}); err != nil {
+	if err := db.AutoMigrate(
+		&models.Professor{},
+		&models.Tag{},
+		&models.Student{},
+		&models.Coins{},
+		&models.Opportunity{},
+		&models.Application{},
+		&models.WeeklyReport{},
+		&models.Notification{},
+	); err != nil {
 		panic("failed to migrate database")
 	}
 
@@ -47,6 +56,11 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	// Custom 404 handler to return JSON instead of plain text
+	server.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"error": "route not found"})
+	})
 
 	// verification code map
 	verificationCodes := make(map[string]int)

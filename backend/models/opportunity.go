@@ -119,10 +119,7 @@ func GetOpportunitiesByProfessorID(db *gorm.DB, professorID uint) ([]Opportunity
 		return nil, err
 	}
 
-	if len(opportunities) == 0 {
-		return nil, errors.New("no opportunities found for this professor")
-	}
-
+	// Return empty array instead of error when no opportunities found
 	return opportunities, nil
 }
 

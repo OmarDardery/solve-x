@@ -1,56 +1,76 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useEffect } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useAuth } from '../../context/AuthContext'
-import { dummyDataService } from '../../services/dummyDataService'
+import apiService from '../../services/api'
 import { Input, Textarea, Select } from '../ui/Input'
 import { Button } from '../ui/Button'
 import { OPPORTUNITY_TYPES } from '../../types'
-import { validateDriveLink, formatDriveLink } from '../../utils/validateDriveLink'
 import toast from 'react-hot-toast'
 
 const opportunitySchema = z.object({
-  title: z.string().min(1, 'Title is required').min(3, 'Title must be at least 3 characters'),
-  description: z.string().min(1, 'Description is required').min(10, 'Description must be at least 10 characters'),
+  name: z.string().min(1, 'Name is required').min(3, 'Name must be at least 3 characters'),
+  details: z.string().min(1, 'Details are required').min(10, 'Details must be at least 10 characters'),
+  requirements: z.string().optional(),
+  reward: z.string().optional(),
   type: z.string().min(1, 'Type is required'),
-  skills: z.string().optional(),
-  timeline: z.string().optional(),
-  positions: z.string().optional(),
-  materialLink: z.string().optional().refine((val) => !val || validateDriveLink(val), {
-    message: 'Must be a valid Google Drive link',
-  }),
+  tag_ids: z.array(z.number()).optional(),
 })
 
 export function OpportunityForm({ onSuccess, onCancel }) {
-  const { currentUser } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [tags, setTags] = useState([])
+  const [selectedTags, setSelectedTags] = useState([])
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(opportunitySchema),
+    defaultValues: {
+      name: '',
+      details: '',
+      requirements: '',
+      reward: '',
+      type: '',
+    },
   })
+
+  useEffect(() => {
+    // Fetch available tags
+    const fetchTags = async () => {
+      try {
+        const response = await apiService.getAllTags()
+        setTags(response || [])
+      } catch (error) {
+        console.error('Failed to fetch tags:', error)
+      }
+    }
+    fetchTags()
+  }, [])
+
+  const handleTagToggle = (tagId) => {
+    setSelectedTags(prev => 
+      prev.includes(tagId) 
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    )
+  }
 
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const skills = data.skills ? data.skills.split(',').map((s) => s.trim()).filter(Boolean) : []
-      
       const opportunityData = {
-        title: data.title,
-        description: data.description,
+        name: data.name,
+        details: data.details,
+        requirements: data.requirements || '',
+        reward: data.reward || '',
         type: data.type,
-        skills,
-        timeline: data.timeline || null,
-        positions: data.positions ? parseInt(data.positions, 10) : null,
-        materialLink: data.materialLink ? formatDriveLink(data.materialLink) : null,
-        organizationId: currentUser.uid,
-        published: false,
+        tag_ids: selectedTags,
       }
 
-      dummyDataService.createOpportunity(opportunityData)
+      await apiService.createOpportunity(opportunityData)
       toast.success('Opportunity created successfully!')
       onSuccess?.()
     } catch (error) {
@@ -63,61 +83,94 @@ export function OpportunityForm({ onSuccess, onCancel }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
-        label="Opportunity Title"
-        placeholder="e.g., Python Workshop for Beginners"
-        {...register('title')}
-        error={errors.title?.message}
+        label="Opportunity Name"
+        placeholder="e.g., Machine Learning Research Assistant"
+        {...register('name')}
+        error={errors.name?.message}
       />
       
-      <Textarea
-        label="Description"
-        placeholder="Describe the opportunity, what participants will learn, and requirements..."
-        rows={5}
-        {...register('description')}
-        error={errors.description?.message}
+      <Controller
+        name="details"
+        control={control}
+        render={({ field }) => (
+          <Textarea
+            label="Details"
+            placeholder="Describe the opportunity, responsibilities, and what students will learn..."
+            rows={5}
+            {...field}
+            error={errors.details?.message}
+          />
+        )}
       />
       
-      <Select
-        label="Type"
-        {...register('type')}
-        error={errors.type?.message}
-      >
-        <option value="">Select type</option>
-        <option value={OPPORTUNITY_TYPES.COURSE}>Course</option>
-        <option value={OPPORTUNITY_TYPES.WORKSHOP}>Workshop</option>
-        <option value={OPPORTUNITY_TYPES.COMPETITION}>Competition</option>
-        <option value={OPPORTUNITY_TYPES.TRAINING}>Training</option>
-      </Select>
-      
-      <Input
-        label="Required Skills (comma-separated, optional)"
-        placeholder="e.g., Python, Web Development"
-        {...register('skills')}
-        error={errors.skills?.message}
+      <Controller
+        name="requirements"
+        control={control}
+        render={({ field }) => (
+          <Textarea
+            label="Requirements (optional)"
+            placeholder="e.g., Experience with Python, Strong foundation in mathematics"
+            rows={3}
+            {...field}
+            error={errors.requirements?.message}
+          />
+        )}
+      />
+
+      <Controller
+        name="reward"
+        control={control}
+        render={({ field }) => (
+          <Textarea
+            label="Reward (optional)"
+            placeholder="e.g., Research credit, Letter of recommendation, $500 stipend"
+            rows={2}
+            {...field}
+            error={errors.reward?.message}
+          />
+        )}
       />
       
-      <Input
-        label="Timeline (optional)"
-        placeholder="e.g., 4 weeks, Starting March 2024"
-        {...register('timeline')}
-        error={errors.timeline?.message}
+      <Controller
+        name="type"
+        control={control}
+        render={({ field }) => (
+          <Select
+            label="Type"
+            {...field}
+            error={errors.type?.message}
+          >
+            <option value="">Select type</option>
+            <option value={OPPORTUNITY_TYPES.RESEARCH}>Research</option>
+            <option value={OPPORTUNITY_TYPES.PROJECT}>Project</option>
+            <option value={OPPORTUNITY_TYPES.INTERNSHIP}>Internship</option>
+          </Select>
+        )}
       />
-      
-      <Input
-        type="number"
-        label="Number of Positions (optional)"
-        placeholder="20"
-        min="1"
-        {...register('positions')}
-        error={errors.positions?.message}
-      />
-      
-      <Input
-        label="Materials Link (Google Drive, optional)"
-        placeholder="https://drive.google.com/..."
-        {...register('materialLink')}
-        error={errors.materialLink?.message}
-      />
+
+      {tags.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Required Skills (select all that apply)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {tags.map(tag => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => handleTagToggle(tag.id)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  selectedTags.includes(tag.id)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={loading} className="flex-1">

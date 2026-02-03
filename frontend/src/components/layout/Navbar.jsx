@@ -60,12 +60,14 @@ export function Navbar() {
               >
                 Opportunities
               </Link>
-              <Link
-                to="/applications"
-                className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
-              >
-                My Applications
-              </Link>
+              {userRole === 'student' && (
+                <Link
+                  to="/applications"
+                  className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+                >
+                  My Applications
+                </Link>
+              )}
               <div className="flex items-center space-x-4">
                 <NotificationsPanel />
                 <span className="text-sm text-gray-600">
@@ -117,13 +119,15 @@ export function Navbar() {
                   >
                     Opportunities
                   </Link>
-                  <Link
-                    to="/applications"
-                    className="block text-gray-700 hover:text-primary-500 font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    My Applications
-                  </Link>
+                  {userRole === 'student' && (
+                    <Link
+                      to="/applications"
+                      className="block text-gray-700 hover:text-primary-500 font-medium"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      My Applications
+                    </Link>
+                  )}
                   <div className="pt-3 border-t border-gray-200">
                     <p className="text-sm text-gray-600 mb-2">{currentUser.email}</p>
                     <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full">

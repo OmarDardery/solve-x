@@ -1,6 +1,7 @@
+import { forwardRef } from 'react'
 import { cn } from '../../utils/cn'
 
-export function Input({ label, error, helperText, className, ...props }) {
+export const Input = forwardRef(({ label, error, helperText, className, ...props }, ref) => {
   return (
     <div className="w-full">
       {label && (
@@ -9,6 +10,7 @@ export function Input({ label, error, helperText, className, ...props }) {
         </label>
       )}
       <input
+        ref={ref}
         className={cn(
           'w-full px-4 py-3 rounded-lg border border-gray-300',
           'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
@@ -26,9 +28,11 @@ export function Input({ label, error, helperText, className, ...props }) {
       )}
     </div>
   )
-}
+})
 
-export function Textarea({ label, error, className, ...props }) {
+Input.displayName = 'Input'
+
+export const Textarea = forwardRef(({ label, error, className, ...props }, ref) => {
   return (
     <div className="w-full">
       {label && (
@@ -37,6 +41,7 @@ export function Textarea({ label, error, className, ...props }) {
         </label>
       )}
       <textarea
+        ref={ref}
         className={cn(
           'w-full px-4 py-3 rounded-lg border border-gray-300',
           'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
@@ -51,9 +56,11 @@ export function Textarea({ label, error, className, ...props }) {
       )}
     </div>
   )
-}
+})
 
-export function Select({ label, error, children, className, ...props }) {
+Textarea.displayName = 'Textarea'
+
+export const Select = forwardRef(({ label, error, children, className, ...props }, ref) => {
   return (
     <div className="w-full">
       {label && (
@@ -62,6 +69,7 @@ export function Select({ label, error, children, className, ...props }) {
         </label>
       )}
       <select
+        ref={ref}
         className={cn(
           'w-full px-4 py-3 rounded-lg border border-gray-300',
           'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
@@ -78,6 +86,8 @@ export function Select({ label, error, children, className, ...props }) {
       )}
     </div>
   )
-}
+})
+
+Select.displayName = 'Select'
 
 

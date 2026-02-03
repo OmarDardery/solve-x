@@ -217,8 +217,115 @@ class ApiService {
     return this.delete('/api/applications', { opportunity_id: opportunityId })
   }
 
-  // ==================== PROTECTED ENDPOINTS ====================
-  // Add more endpoints as needed
+  // ==================== TAGS ENDPOINTS ====================
+
+  /**
+   * Get all tags (public)
+   */
+  async getAllTags() {
+    return this.get('/public/tags')
+  }
+
+  /**
+   * Get tag by ID (public)
+   */
+  async getTagById(id) {
+    return this.get(`/public/tags/${id}`)
+  }
+
+  /**
+   * Create new tag (professor only)
+   */
+  async createTag(data) {
+    return this.post('/api/tags', data)
+  }
+
+  // ==================== WEEKLY REPORTS ENDPOINTS ====================
+
+  /**
+   * Submit weekly report (student only)
+   */
+  async createReport(data) {
+    return this.post('/api/reports', data)
+  }
+
+  /**
+   * Get my reports
+   * For students: returns their reports
+   * For professors: returns reports sent to them
+   */
+  async getMyReports() {
+    return this.get('/api/reports/me')
+  }
+
+  /**
+   * Get reports by student ID (professor only)
+   */
+  async getReportsByStudentId(studentId) {
+    return this.get(`/api/reports/student/${studentId}`)
+  }
+
+  /**
+   * Delete report (student only)
+   */
+  async deleteReport(reportId) {
+    return this.delete(`/api/reports/${reportId}`)
+  }
+
+  // ==================== NOTIFICATIONS ENDPOINTS ====================
+
+  /**
+   * Get my notifications
+   * @param {boolean} unreadOnly - If true, only returns unread notifications
+   */
+  async getMyNotifications(unreadOnly = false) {
+    const query = unreadOnly ? '?unread_only=true' : ''
+    return this.get(`/api/notifications/me${query}`)
+  }
+
+  /**
+   * Get unread notification count
+   */
+  async getUnreadNotificationCount() {
+    return this.get('/api/notifications/me/count')
+  }
+
+  /**
+   * Mark notification as read
+   */
+  async markNotificationAsRead(notificationId) {
+    return this.put(`/api/notifications/${notificationId}/read`)
+  }
+
+  /**
+   * Mark all notifications as read
+   */
+  async markAllNotificationsAsRead() {
+    return this.put('/api/notifications/read-all')
+  }
+
+  /**
+   * Delete notification
+   */
+  async deleteNotification(notificationId) {
+    return this.delete(`/api/notifications/${notificationId}`)
+  }
+
+  // ==================== COINS ENDPOINTS ====================
+
+  /**
+   * Get my coins (student only)
+   */
+  async getMyCoins() {
+    return this.get('/api/coins/me')
+  }
+
+  /**
+   * Increment coins (student only)
+   */
+  async incrementCoins(amount) {
+    return this.post('/api/coins/increment', { amount })
+  }
 }
 
 export const apiService = new ApiService()

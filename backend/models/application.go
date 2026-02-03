@@ -85,7 +85,7 @@ func GetApplicationByID(db *gorm.DB, id uint) (*Application, error) {
 	return &application, err
 }
 
-// UpdateApplicationStatus updates the status of an application
+// UpdateApplicationStatus updates the status of an application and notifies the student
 func UpdateApplicationStatus(db *gorm.DB, id uint, status string) (*Application, error) {
 	// Validate status
 	if status != StatusPending && status != StatusAccepted && status != StatusRejected {
@@ -97,9 +97,19 @@ func UpdateApplicationStatus(db *gorm.DB, id uint, status string) (*Application,
 		return nil, err
 	}
 
+	oldStatus := application.Status
 	application.Status = status
 	if err := db.Save(application).Error; err != nil {
 		return nil, err
+	}
+
+	// Notify student if status changed to accepted or rejected
+	if oldStatus != status && (status == StatusAccepted || status == StatusRejected) {
+		opportunityName := "this opportunity"
+		if application.Opportunity != nil {
+			opportunityName = application.Opportunity.Name
+		}
+		NotifyApplicationStatusChange(db, application.StudentID, opportunityName, status)
 	}
 
 	return application, nil

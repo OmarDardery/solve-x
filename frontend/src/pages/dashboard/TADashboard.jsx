@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { Modal } from '../../components/ui/Modal'
-import { ProjectForm } from '../../components/forms/ProjectForm'
+import { OpportunityForm } from '../../components/forms/OpportunityForm'
 import { Plus, BookOpen, Users, FileText, TrendingUp, Briefcase, ExternalLink, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -319,11 +319,11 @@ export function TADashboard() {
         title="Create New Opportunity"
         size="xl"
       >
-        <ProjectForm
+        <OpportunityForm
           onSuccess={() => {
             setShowCreateModal(false)
             fetchData()
-            toast.success('Project created successfully!')
+            toast.success('Opportunity created successfully!')
           }}
           onCancel={() => setShowCreateModal(false)}
         />

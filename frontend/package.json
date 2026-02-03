@@ -1,7 +1,7 @@
 {
   "name": "solvex",
   "version": "1.0.0",
-  "description": "Modular full-stack platform for student research, academic collaboration, skill development, and opportunities with luxury UI using React + Firebase.",
+  "description": "Modular full-stack platform for student research, academic collaboration, skill development, and opportunities with luxury UI using React + Go Backend.",
   "type": "module",
   "private": true,
   "scripts": {
@@ -14,7 +14,6 @@
     "@hookform/resolvers": "^3.3.2",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
-    "firebase": "^12.8.0",
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
