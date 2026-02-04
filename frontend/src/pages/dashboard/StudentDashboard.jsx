@@ -62,16 +62,16 @@ export function StudentDashboard() {
   ]
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen -m-6 p-6">
-      <div className="flex justify-between items-center bg-white rounded-xl p-6 shadow-sm border border-green-100">
+    <div className="space-y-6 sm:space-y-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen -m-4 sm:-m-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-green-100">
         <div>
-          <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             Student Dashboard
           </h1>
-          <p className="text-gray-600 mt-1">Track your applications and opportunities</p>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Track your applications and opportunities</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" as={Link} to="/opportunities">
+          <Button variant="secondary" as={Link} to="/opportunities" className="text-sm sm:text-base">
             Browse Opportunities
             <ExternalLink className="w-4 h-4 ml-2" />
           </Button>
@@ -79,18 +79,18 @@ export function StudentDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.label}>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">{stat.label}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <Icon className={`w-12 h-12 ${stat.color}`} />
+                  <Icon className={`w-10 h-10 sm:w-12 sm:h-12 ${stat.color}`} />
                 </div>
               </CardContent>
             </Card>

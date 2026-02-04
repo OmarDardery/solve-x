@@ -10,36 +10,36 @@ export function Home() {
 
   return (
     <Layout>
-      <div className="space-y-16">
+      <div className="space-y-12 sm:space-y-16">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center py-16"
+          className="text-center py-8 sm:py-16 px-4"
         >
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <img 
               src="/logo.png" 
               alt="SolveX Logo" 
-              className="h-24 w-24 object-contain"
+              className="h-16 w-16 sm:h-24 sm:w-24 object-contain"
             />
           </div>
-          <h1 className="text-5xl md:text-6xl font-display font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 mb-4 sm:mb-6">
             Welcome to{' '}
             <span className="bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent">
               SolveX
             </span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8">
             The premium platform for student research, academic collaboration, and skill development
           </p>
           {!currentUser ? (
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" as={Link} to="/signup">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button size="lg" as={Link} to="/signup" className="w-full sm:w-auto">
                 Get Started
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button variant="secondary" size="lg" as={Link} to="/login">
+              <Button variant="secondary" size="lg" as={Link} to="/login" className="w-full sm:w-auto">
                 Sign In
               </Button>
             </div>
@@ -52,7 +52,7 @@ export function Home() {
         </motion.div>
 
         {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8 px-4 sm:px-0">
           {[
             {
               icon: Search,
@@ -82,13 +82,13 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="card text-center"
+                className="card text-center p-4 sm:p-6"
               >
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-6 h-6 text-primary-500" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
               </motion.div>
             )
           })}

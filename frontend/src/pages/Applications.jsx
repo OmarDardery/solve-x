@@ -74,11 +74,11 @@ export function Applications() {
   const canManageStatus = ['professor', 'ta', 'organization_representative'].includes(userRole)
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-gray-900">Applications</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">Applications</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             {userRole === 'student' ? 'Track your applications' : 'Manage applications'}
           </p>
         </div>
@@ -86,7 +86,7 @@ export function Applications() {
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-48"
+            className="w-full sm:w-48"
           >
             <option value="all">All Statuses</option>
             <option value={APPLICATION_STATUS.PENDING}>Pending</option>
@@ -114,27 +114,27 @@ export function Applications() {
             const StatusIcon = getStatusIcon(application.status)
             return (
               <Card key={application.ID}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <StatusIcon className="w-5 h-5 text-gray-400" />
-                        <h3 className="text-lg font-semibold">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                        <StatusIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <h3 className="text-base sm:text-lg font-semibold truncate">
                           {application.opportunity?.name || 'Opportunity'}
                         </h3>
-                        <Badge variant={getStatusBadge(application.status)}>
+                        <Badge variant={getStatusBadge(application.status)} className="text-xs">
                           {application.status}
                         </Badge>
                       </div>
                       {application.opportunity?.details && (
-                        <p className="text-gray-600 mb-3">{application.opportunity.details.substring(0, 150)}...</p>
+                        <p className="text-gray-600 mb-3 text-sm line-clamp-2">{application.opportunity.details.substring(0, 150)}...</p>
                       )}
                       
                       {/* Application Message */}
                       {application.message && (
                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Message:</p>
-                          <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.message}</p>
+                          <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Message:</p>
+                          <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap line-clamp-3 sm:line-clamp-none">{application.message}</p>
                         </div>
                       )}
                       
@@ -145,7 +145,7 @@ export function Applications() {
                             href={application.resume_link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
+                            className="inline-flex items-center gap-2 text-xs sm:text-sm text-primary-600 hover:text-primary-700"
                           >
                             <ExternalLink className="w-4 h-4" />
                             View Resume/CV
@@ -153,21 +153,21 @@ export function Applications() {
                         </div>
                       )}
                       
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                      <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                         <span>
                           Applied: {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </span>
                         {application.student && (
-                          <span>Student: {application.student.first_name} {application.student.last_name}</span>
+                          <span className="truncate">Student: {application.student.first_name} {application.student.last_name}</span>
                         )}
                       </div>
                     </div>
                     {canManageStatus && (
-                      <div className="flex flex-col gap-2 ml-4">
+                      <div className="flex flex-col gap-2 w-full sm:w-auto sm:ml-4">
                         <Select
                           value={application.status}
                           onChange={(e) => updateStatus(application.ID, e.target.value)}
-                          className="w-40"
+                          className="w-full sm:w-40 text-sm"
                         >
                           <option value="pending">Pending</option>
                           <option value="accepted">Accepted</option>
@@ -179,7 +179,7 @@ export function Applications() {
                 </CardContent>
               </Card>
             )
-          })}
+          })}}
         </div>
       )}
     </div>

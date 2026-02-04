@@ -79,8 +79,8 @@ export function Events() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Events</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Events</h1>
+        <p className="text-sm sm:text-base text-gray-500 mt-1">
           Discover events from organizations and companies
         </p>
       </div>
@@ -90,7 +90,7 @@ export function Events() {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
         <Input
           type="text"
-          placeholder="Search events by title, description, or organization..."
+          placeholder="Search events..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -158,32 +158,32 @@ export function Events() {
                 )}
 
                 {/* Quick Links */}
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-col xs:flex-row gap-2 mt-4">
                   {event.link && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm"
                       onClick={(e) => {
                         e.stopPropagation()
                         window.open(event.link, '_blank')
                       }}
                     >
-                      <LinkIcon className="w-4 h-4 mr-1" />
-                      Learn More
+                      <LinkIcon className="w-4 h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">Learn More</span>
                     </Button>
                   )}
                   {event.sign_up_link && (
                     <Button
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm"
                       onClick={(e) => {
                         e.stopPropagation()
                         window.open(event.sign_up_link, '_blank')
                       }}
                     >
-                      <ExternalLink className="w-4 h-4 mr-1" />
-                      Sign Up
+                      <ExternalLink className="w-4 h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">Sign Up</span>
                     </Button>
                   )}
                 </div>
@@ -243,7 +243,7 @@ export function Events() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               {selectedEvent.link && (
                 <Button
                   variant="outline"

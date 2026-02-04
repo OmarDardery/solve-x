@@ -153,53 +153,53 @@ export function OrganizationDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Welcome, {profile?.name || currentUser?.name || 'Organization'}!
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">
             Manage your events and reach students
           </p>
         </div>
-        <Button onClick={openCreateModal} className="flex items-center gap-2">
+        <Button onClick={openCreateModal} className="flex items-center gap-2 text-sm sm:text-base self-start sm:self-auto">
           <Plus className="w-4 h-4" />
-          Create New Event
+          Create Event
         </Button>
       </div>
 
       {/* Organization Info Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-purple-600" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
             Organization Profile
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Mail className="w-4 h-4" />
-              <span>{profile?.email || currentUser?.email}</span>
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{profile?.email || currentUser?.email}</span>
             </div>
             {profile?.contact && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <Phone className="w-4 h-4" />
-                <span>{profile.contact}</span>
+              <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{profile.contact}</span>
               </div>
             )}
             {profile?.link && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <Globe className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+                <Globe className="w-4 h-4 flex-shrink-0" />
                 <a 
                   href={profile.link} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-purple-600 hover:underline flex items-center gap-1"
+                  className="text-purple-600 hover:underline flex items-center gap-1 truncate"
                 >
-                  Website <ExternalLink className="w-3 h-3" />
+                  <span className="truncate">Website</span> <ExternalLink className="w-3 h-3 flex-shrink-0" />
                 </a>
               </div>
             )}
@@ -209,14 +209,14 @@ export function OrganizationDashboard() {
 
       {/* Stats */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-purple-600" />
+        <CardContent className="p-4 sm:pt-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
+              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{events.length}</p>
-              <p className="text-gray-500 text-sm">Total Events</p>
+              <p className="text-xl sm:text-2xl font-bold">{events.length}</p>
+              <p className="text-gray-500 text-xs sm:text-sm">Total Events</p>
             </div>
           </div>
         </CardContent>
@@ -244,27 +244,27 @@ export function OrganizationDashboard() {
               {events.map((event) => (
                 <div 
                   key={event.ID} 
-                  className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-gray-900">{event.title}</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base sm:text-lg text-gray-900">{event.title}</h3>
                       {event.date && (
-                        <p className="text-sm text-purple-600 mt-1 flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {event.date}
+                        <p className="text-xs sm:text-sm text-purple-600 mt-1 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{event.date}</span>
                         </p>
                       )}
                       {event.description && (
-                        <p className="text-gray-600 mt-2 line-clamp-2">{event.description}</p>
+                        <p className="text-gray-600 mt-2 line-clamp-2 text-sm">{event.description}</p>
                       )}
-                      <div className="flex flex-wrap gap-3 mt-3">
+                      <div className="flex flex-wrap gap-2 sm:gap-3 mt-3">
                         {event.link && (
                           <a 
                             href={event.link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                            className="text-xs sm:text-sm text-blue-600 hover:underline flex items-center gap-1"
                           >
                             <LinkIcon className="w-3 h-3" />
                             Learn More
@@ -275,23 +275,23 @@ export function OrganizationDashboard() {
                             href={event.sign_up_link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-sm text-green-600 hover:underline flex items-center gap-1"
+                            className="text-xs sm:text-sm text-green-600 hover:underline flex items-center gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            Sign Up Form
+                            Sign Up
                           </a>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 self-end sm:self-start">
                       <Button 
                         variant="outline" 
                         size="sm" 
                         onClick={() => openEditModal(event)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 text-xs sm:text-sm"
                       >
-                        <Edit className="w-4 h-4" />
-                        Edit
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden xs:inline">Edit</span>
                       </Button>
                       <Button 
                         variant="ghost" 
@@ -299,7 +299,7 @@ export function OrganizationDashboard() {
                         onClick={() => handleDeleteEvent(event.ID)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>

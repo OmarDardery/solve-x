@@ -76,35 +76,35 @@ export function ProfessorDashboard() {
   ]
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen -m-6 p-6">
-      <div className="flex justify-between items-center bg-white rounded-xl p-6 shadow-sm border border-blue-100">
+    <div className="space-y-6 sm:space-y-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen -m-4 sm:-m-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-blue-100">
         <div>
-          <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Professor Dashboard
           </h1>
-          <p className="text-gray-600 mt-1">Manage your research projects and applications</p>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your research projects and applications</p>
         </div>
         <div className="flex gap-3">
-          <Button onClick={() => setShowCreateModal(true)}>
-            <Plus className="w-5 h-5 mr-2" />
+          <Button onClick={() => setShowCreateModal(true)} className="text-sm sm:text-base">
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Create Project
           </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.label}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+              <CardContent className="p-3 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1 line-clamp-1">{stat.label}</p>
+                    <p className="text-xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <Icon className={`w-12 h-12 ${stat.color}`} />
+                  <Icon className={`w-8 h-8 sm:w-12 sm:h-12 ${stat.color} hidden sm:block`} />
                 </div>
               </CardContent>
             </Card>

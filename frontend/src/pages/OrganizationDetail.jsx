@@ -77,14 +77,14 @@ export function OrganizationDetail() {
       </Link>
 
       {/* Organization Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-white">
-        <div className="flex items-start gap-6">
-          <div className="p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-            <Building2 className="w-12 h-12 text-white" />
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+          <div className="p-3 sm:p-4 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-sm self-start">
+            <Building2 className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">{organization.name}</h1>
-            <p className="text-purple-100 mt-2">Organization</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">{organization.name}</h1>
+            <p className="text-purple-100 mt-1 sm:mt-2 text-sm sm:text-base">Organization</p>
           </div>
         </div>
       </div>
@@ -95,17 +95,17 @@ export function OrganizationDetail() {
           <CardTitle>Contact Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {organization.email && (
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Mail className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-500">Email</p>
                   <a 
                     href={`mailto:${organization.email}`}
-                    className="text-purple-600 hover:underline font-medium"
+                    className="text-purple-600 hover:underline font-medium text-sm sm:text-base truncate block"
                   >
                     {organization.email}
                   </a>
@@ -114,31 +114,31 @@ export function OrganizationDetail() {
             )}
             
             {organization.contact && (
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Phone className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Contact</p>
-                  <p className="font-medium text-gray-900">{organization.contact}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-500">Contact</p>
+                  <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{organization.contact}</p>
                 </div>
               </div>
             )}
             
             {organization.link && (
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Globe className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Website</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-500">Website</p>
                   <a 
                     href={organization.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-purple-600 hover:underline font-medium flex items-center gap-1"
+                    className="text-purple-600 hover:underline font-medium flex items-center gap-1 text-sm sm:text-base"
                   >
-                    Visit Website <ExternalLink className="w-3 h-3" />
+                    <span className="truncate">Visit Website</span> <ExternalLink className="w-3 h-3 flex-shrink-0" />
                   </a>
                 </div>
               </div>
@@ -185,11 +185,12 @@ export function OrganizationDetail() {
                   )}
                   
                   {/* Event Links */}
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex flex-col xs:flex-row gap-2 mt-4">
                     {event.link && (
                       <Button
                         variant="outline"
                         size="sm"
+                        className="text-xs sm:text-sm"
                         onClick={() => window.open(event.link, '_blank')}
                       >
                         <LinkIcon className="w-4 h-4 mr-1" />
@@ -199,6 +200,7 @@ export function OrganizationDetail() {
                     {event.sign_up_link && (
                       <Button
                         size="sm"
+                        className="text-xs sm:text-sm"
                         onClick={() => window.open(event.sign_up_link, '_blank')}
                       >
                         <ExternalLink className="w-4 h-4 mr-1" />

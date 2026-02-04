@@ -77,20 +77,20 @@ export function Opportunities() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-display font-bold text-gray-900">Research Opportunities</h1>
-        <p className="text-gray-600 mt-1">Browse and apply to research projects and opportunities</p>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">Research Opportunities</h1>
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">Browse and apply to research projects and opportunities</p>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="Search opportunities..."
+                placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -123,14 +123,14 @@ export function Opportunities() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredOpportunities.map((opportunity) => (
             <Card key={opportunity.ID} hover>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <Badge variant="primary">{getTypeLabel(opportunity.type)}</Badge>
+                  <Badge variant="primary" className="text-xs">{getTypeLabel(opportunity.type)}</Badge>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 line-clamp-2">{opportunity.name}</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 line-clamp-2">{opportunity.name}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">{opportunity.details}</p>
                 
                 {opportunity.requirement_tags && opportunity.requirement_tags.length > 0 && (
@@ -149,11 +149,11 @@ export function Opportunities() {
                 )}
                 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-xs sm:text-sm text-gray-500 truncate mr-2">
                     {opportunity.professor?.first_name} {opportunity.professor?.last_name}
                   </div>
                   <Button size="sm" as={Link} to={`/opportunities/${opportunity.ID}`}>
-                    <ExternalLink className="w-4 h-4 ml-2" />
+                    <ExternalLink className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
