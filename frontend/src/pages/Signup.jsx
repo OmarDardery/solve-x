@@ -359,6 +359,12 @@ export function Signup() {
               Sign in
             </Link>
           </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Are you an organization?{' '}
+            <Link to="/signup/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+              Sign up here
+            </Link>
+          </p>
         </CardContent>
       </Card>
 

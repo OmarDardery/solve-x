@@ -24,6 +24,7 @@ export function Navbar() {
         return '/dashboard/ta'
       case 'student':
         return '/dashboard/student'
+      case 'organization':
       case 'organization_representative':
         return '/dashboard/organization'
       default:
@@ -60,6 +61,14 @@ export function Navbar() {
               >
                 Opportunities
               </Link>
+              {(userRole === 'student' || userRole === 'professor') && (
+                <Link
+                  to="/events"
+                  className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+                >
+                  Events
+                </Link>
+              )}
               {userRole === 'student' && (
                 <Link
                   to="/applications"
@@ -119,6 +128,15 @@ export function Navbar() {
                   >
                     Opportunities
                   </Link>
+                  {(userRole === 'student' || userRole === 'professor') && (
+                    <Link
+                      to="/events"
+                      className="block text-gray-700 hover:text-primary-500 font-medium"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Events
+                    </Link>
+                  )}
                   {userRole === 'student' && (
                     <Link
                       to="/applications"

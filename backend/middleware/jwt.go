@@ -50,6 +50,8 @@ func JWTMiddleware(db *gorm.DB) gin.HandlerFunc {
 			user, err = models.GetStudentByID(db, id)
 		case "professor":
 			user, err = models.GetProfessorByID(db, id)
+		case "organization":
+			user, err = models.GetOrganizationByID(db, id)
 		default:
 			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Invalid role: %s", role)})
 			c.Abort()

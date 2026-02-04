@@ -30,6 +30,7 @@ export function ProtectedRoute({ children, allowedRoles = [] }) {
       'professor': '/dashboard/professor',
       'ta': '/dashboard/ta',
       'student': '/dashboard/student',
+      'organization': '/dashboard/organization',
       'organization_representative': '/dashboard/organization',
     }
     return <Navigate to={dashboardPaths[userRole] || '/dashboard'} replace />

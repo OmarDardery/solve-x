@@ -176,6 +176,12 @@ export function Login() {
               Sign up
             </Link>
           </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Are you an organization?{' '}
+            <Link to="/login/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+              Sign in here
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

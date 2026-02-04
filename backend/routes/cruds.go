@@ -58,6 +58,8 @@ func uintFromParam(param string) uint {
 func RegisterCRUDRoutes(api *gin.RouterGroup, db *gorm.DB) {
 	registerStudentRoutes(api.Group("/students"), db)
 	registerProfessorRoutes(api.Group("/professors"), db)
+	registerOrganizationRoutes(api.Group("/organizations"), db)
+	registerEventRoutes(api.Group("/events"), db)
 	registerOpportunityRoutes(api.Group("/opportunities"), db)
 	registerApplicationRoutes(api.Group("/applications"), db)
 	registerCoinRoutes(api.Group("/coins"), db)
@@ -153,6 +155,195 @@ func registerProfessorRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"message": "professor deleted"})
+	})
+}
+
+// ------------------ ORGANIZATIONS ------------------
+
+func registerOrganizationRoutes(rg *gin.RouterGroup, db *gorm.DB) {
+	rg.GET("/me", func(c *gin.Context) {
+		if org, ok := getUser[models.Organization](c); ok {
+			c.JSON(http.StatusOK, org)
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get organization"})
+		}
+	})
+
+	rg.PUT("/me", func(c *gin.Context) {
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get organization"})
+			return
+		}
+
+		updates, ok := bindJSON[map[string]interface{}](c)
+		if !ok {
+			return
+		}
+
+		updated, err := models.UpdateOrganization(db, org.ID, *updates)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, updated)
+	})
+
+	rg.DELETE("/me", func(c *gin.Context) {
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get organization"})
+			return
+		}
+		if err := models.DeleteOrganization(db, org.ID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "organization deleted"})
+	})
+}
+
+// ------------------ EVENTS ------------------
+
+func registerEventRoutes(rg *gin.RouterGroup, db *gorm.DB) {
+	// Get all events for the current organization
+	rg.GET("/me", func(c *gin.Context) {
+		if !requireRole(c, "organization") {
+			return
+		}
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			return
+		}
+		events, err := models.GetEventsByOrganizationID(db, org.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, events)
+	})
+
+	// Get a specific event by ID
+	rg.GET("/:id", func(c *gin.Context) {
+		event, err := models.GetEventByID(db, uintFromParam(c.Param("id")))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "event not found"})
+			return
+		}
+		c.JSON(http.StatusOK, event)
+	})
+
+	// Create a new event (organization only)
+	rg.POST("", func(c *gin.Context) {
+		if !requireRole(c, "organization") {
+			return
+		}
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			return
+		}
+
+		input, ok := bindJSON[struct {
+			Title       string `json:"title" binding:"required"`
+			Description string `json:"description"`
+			Date        string `json:"date"`
+			Link        string `json:"link"`
+			SignUpLink  string `json:"sign_up_link"`
+		}](c)
+		if !ok {
+			return
+		}
+
+		event := &models.Event{
+			Title:          input.Title,
+			Description:    input.Description,
+			Date:           input.Date,
+			Link:           input.Link,
+			SignUpLink:     input.SignUpLink,
+			OrganizationID: org.ID,
+		}
+
+		if err := models.CreateEvent(db, event); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusCreated, event)
+	})
+
+	// Update an event (organization only, must own the event)
+	rg.PUT("/:id", func(c *gin.Context) {
+		if !requireRole(c, "organization") {
+			return
+		}
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			return
+		}
+
+		eventID := uintFromParam(c.Param("id"))
+		event, err := models.GetEventByID(db, eventID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "event not found"})
+			return
+		}
+
+		// Verify ownership
+		if event.OrganizationID != org.ID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "you can only edit your own events"})
+			return
+		}
+
+		input, ok := bindJSON[struct {
+			Title       string `json:"title"`
+			Description string `json:"description"`
+			Date        string `json:"date"`
+			Link        string `json:"link"`
+			SignUpLink  string `json:"sign_up_link"`
+		}](c)
+		if !ok {
+			return
+		}
+
+		// Update fields if provided
+		if input.Title != "" {
+			event.Title = input.Title
+		}
+		if input.Description != "" {
+			event.Description = input.Description
+		}
+		if input.Date != "" {
+			event.Date = input.Date
+		}
+		if input.Link != "" {
+			event.Link = input.Link
+		}
+		if input.SignUpLink != "" {
+			event.SignUpLink = input.SignUpLink
+		}
+
+		if err := models.UpdateEvent(db, event); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, event)
+	})
+
+	// Delete an event (organization only, must own the event)
+	rg.DELETE("/:id", func(c *gin.Context) {
+		if !requireRole(c, "organization") {
+			return
+		}
+		org, ok := getUser[models.Organization](c)
+		if !ok {
+			return
+		}
+
+		eventID := uintFromParam(c.Param("id"))
+		if err := models.DeleteEventByIDAndOrg(db, eventID, org.ID); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "event not found or you don't have permission to delete it"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "event deleted"})
 	})
 }
 

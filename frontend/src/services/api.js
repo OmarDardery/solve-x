@@ -333,6 +333,66 @@ class ApiService {
   async incrementCoins(amount) {
     return this.post('/api/coins/increment', { amount })
   }
+
+  // ==================== EVENTS ENDPOINTS ====================
+
+  /**
+   * Get all events (public)
+   */
+  async getAllEvents() {
+    return this.get('/public/events')
+  }
+
+  /**
+   * Get event by ID (public)
+   */
+  async getEventById(id) {
+    return this.get(`/public/events/${id}`)
+  }
+
+  /**
+   * Get organization's events (protected, organization only)
+   */
+  async getMyEvents() {
+    return this.get('/api/events/me')
+  }
+
+  /**
+   * Create new event (organization only)
+   */
+  async createEvent(data) {
+    return this.post('/api/events', data)
+  }
+
+  /**
+   * Update event (organization only)
+   */
+  async updateEvent(id, data) {
+    return this.put(`/api/events/${id}`, data)
+  }
+
+  /**
+   * Delete event (organization only)
+   */
+  async deleteEvent(id) {
+    return this.delete(`/api/events/${id}`)
+  }
+
+  // ==================== ORGANIZATIONS ENDPOINTS ====================
+
+  /**
+   * Get organization by ID (public)
+   */
+  async getOrganizationById(id) {
+    return this.get(`/public/organizations/${id}`)
+  }
+
+  /**
+   * Get events by organization ID (public)
+   */
+  async getEventsByOrganizationId(id) {
+    return this.get(`/public/organizations/${id}/events`)
+  }
 }
 
 export const apiService = new ApiService()

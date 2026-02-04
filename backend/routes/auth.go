@@ -19,6 +19,16 @@ type SignUpInput struct {
 	Password  string `json:"password" binding:"required,min=8"`
 }
 
+// OrganizationSignUpInput has different fields for organizations
+type OrganizationSignUpInput struct {
+	Code     int    `json:"code" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+	Contact  string `json:"contact"`
+	Link     string `json:"link"`
+}
+
 type SignInInput struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8"`
@@ -48,11 +58,39 @@ func SendCodeHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.M
 	}
 }
 
-// SignUpHandler handles user registration for both students and professors
+// SignUpHandler handles user registration for students, professors, and organizations
 func SignUpHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mailman) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		role := ctx.Param("role")
 
+		var err error
+
+		// Handle organization separately due to different input structure
+		if role == "organization" {
+			var input OrganizationSignUpInput
+			if err := ctx.ShouldBindJSON(&input); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if code, exists := (*codes)[input.Email]; !exists || code != input.Code {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or missing verification code"})
+				return
+			}
+
+			err = models.CreateOrganization(db, input.Name, input.Email, input.Password, input.Contact, input.Link)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"message": "organization registered successfully",
+			})
+			return
+		}
+
+		// Handle student and professor
 		var input SignUpInput
 		if err := ctx.ShouldBindJSON(&input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -64,7 +102,6 @@ func SignUpHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mai
 			return
 		}
 
-		var err error
 		switch role {
 		case "student":
 			err = models.CreateStudent(db, input.FirstName, input.LastName, input.Email, input.Password)
@@ -112,6 +149,13 @@ func SignInHandler(db *gorm.DB) gin.HandlerFunc {
 			token, err = user.GetJWT()
 		case "professor":
 			user, authErr := models.AuthenticateProfessor(db, input.Email, input.Password)
+			if authErr != nil {
+				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+				return
+			}
+			token, err = user.GetJWT()
+		case "organization":
+			user, authErr := models.AuthenticateOrganization(db, input.Email, input.Password)
 			if authErr != nil {
 				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 				return

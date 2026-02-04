@@ -8,16 +8,21 @@ import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { SelectRole } from './pages/SelectRole'
+import { OrganizationSignup } from './pages/OrganizationSignup'
+import { OrganizationLogin } from './pages/OrganizationLogin'
 
 // Dashboard Pages
 import { ProfessorDashboard } from './pages/dashboard/ProfessorDashboard'
 import { StudentDashboard } from './pages/dashboard/StudentDashboard'
+import { OrganizationDashboard } from './pages/dashboard/OrganizationDashboard'
 
 // Feature Pages
 import { Opportunities } from './pages/Opportunities'
 import { OpportunityDetail } from './pages/OpportunityDetail'
 import { Applications } from './pages/Applications'
 import { WeeklyReports } from './pages/WeeklyReports'
+import { Events } from './pages/Events'
+import { OrganizationDetail } from './pages/OrganizationDetail'
 
 import { USER_ROLES } from './types'
 
@@ -28,7 +33,9 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/login/organization" element={<OrganizationLogin />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/signup/organization" element={<OrganizationSignup />} />
         <Route
           path="/select-role"
           element={
@@ -55,6 +62,16 @@ function App() {
             <ProtectedRoute allowedRoles={[USER_ROLES.STUDENT]}>
               <Layout>
                 <StudentDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/organization"
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ORGANIZATION]}>
+              <Layout>
+                <OrganizationDashboard />
               </Layout>
             </ProtectedRoute>
           }
@@ -97,6 +114,26 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <WeeklyReports />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Events />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/organizations/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <OrganizationDetail />
               </Layout>
             </ProtectedRoute>
           }

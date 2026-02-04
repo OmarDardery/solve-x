@@ -34,6 +34,8 @@ func main() {
 		&models.Application{},
 		&models.WeeklyReport{},
 		&models.Notification{},
+		&models.Organization{},
+		&models.Event{},
 	); err != nil {
 		panic("failed to migrate database")
 	}

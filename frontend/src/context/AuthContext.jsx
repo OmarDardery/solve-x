@@ -80,6 +80,45 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function signupOrganization(code, email, password, name, contact, link) {
+    try {
+      const response = await apiService.signup('organization', {
+        code: parseInt(code),
+        email,
+        password,
+        name,
+        contact: contact || '',
+        link: link || '',
+      })
+
+      // Store JWT token
+      if (response.token) {
+        apiService.setToken(response.token)
+      }
+
+      // Create user object from response
+      const user = {
+        email,
+        name,
+        contact,
+        link,
+        role: 'organization',
+      }
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('user_role', 'organization')
+
+      setCurrentUser(user)
+      setUserRole('organization')
+
+      return { user }
+    } catch (error) {
+      console.error('Organization signup error:', error)
+      throw error
+    }
+  }
+
   async function login(role, email, password) {
     try {
       const response = await apiService.signin(role, email, password)
@@ -146,6 +185,7 @@ export function AuthProvider({ children }) {
     currentUser,
     userRole,
     signup,
+    signupOrganization,
     login,
     sendVerificationCode,
     logout,

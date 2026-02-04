@@ -4,6 +4,7 @@
 export const USER_ROLES = {
   PROFESSOR: 'professor',
   STUDENT: 'student',
+  ORGANIZATION: 'organization',
 }
 
 /**
