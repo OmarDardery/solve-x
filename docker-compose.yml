@@ -10,12 +10,12 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    env_file:
+      - .env.prod.back
     environment:
       - PORT=8000
     networks:
       - solvex-network
-    volumes:
-      - ./backend/.env:/root/.env:ro
 
   # Frontend Service
   frontend:
@@ -26,6 +26,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:80"
+    env_file:
+      - .env.prod.front
     depends_on:
       - backend
     networks:

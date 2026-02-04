@@ -24,10 +24,10 @@ type Mailman struct {
 	smtpPassword string
 }
 
-// NewMailman creates a new Mailman instance based on HOST_SERVICE env variable
+// NewMailman creates a new Mailman instance based on MAIL_SERVICE env variable
 func NewMailman() *Mailman {
-	hostService := os.Getenv("HOST_SERVICE")
-	useSendGrid := hostService != "local"
+	mailService := os.Getenv("MAIL_SERVICE")
+	useSendGrid := mailService != "local"
 
 	return &Mailman{
 		useSendGrid:    useSendGrid,

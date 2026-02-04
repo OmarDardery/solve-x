@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -8,12 +9,7 @@ import (
 )
 
 func NewDatabase() (*gorm.DB, func()) {
-	var dsn string
-	if os.Getenv("ENVIRONMENT") == "production" {
-		dsn = os.Getenv("PROD_DB_DSN")
-	} else {
-		dsn = os.Getenv("DEV_DB_DSN")
-	}
+	dsn := os.Getenv("DATABASE_URL")
 	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		panic("failed to connect database")

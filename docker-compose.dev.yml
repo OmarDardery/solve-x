@@ -31,6 +31,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    env_file:
+      - .env.dev.back
     environment:
       - PORT=8000
       - DB_HOST=db
@@ -53,6 +55,8 @@ services:
     working_dir: /app
     ports:
       - "3000:3000"
+    env_file:
+      - .env.dev.front
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
