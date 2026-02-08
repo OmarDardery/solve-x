@@ -62,13 +62,13 @@ export function StudentDashboard() {
   ]
 
   return (
-    <div className="space-y-6 sm:space-y-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen -m-4 sm:-m-6 p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-green-100">
+    <div className="page-bg space-y-6 sm:space-y-8 -m-4 sm:-m-6 p-4 sm:p-6">
+      <div className="card flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-heading">
             Student Dashboard
           </h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Track your applications and opportunities</p>
+          <p className="text-body mt-1 text-sm sm:text-base">Track your applications and opportunities</p>
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" as={Link} to="/opportunities" className="text-sm sm:text-base">
@@ -87,8 +87,8 @@ export function StudentDashboard() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-body mb-1">{stat.label}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-heading">{stat.value}</p>
                   </div>
                   <Icon className={`w-10 h-10 sm:w-12 sm:h-12 ${stat.color}`} />
                 </div>
@@ -115,16 +115,16 @@ export function StudentDashboard() {
               {opportunities.map((opportunity) => (
                 <div
                   key={opportunity.ID}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors cursor-pointer"
+                  className="p-4 border rounded-lg border-default hover:border-brand transition-colors cursor-pointer"
                   onClick={() => window.location.href = `/opportunities/${opportunity.ID}`}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <Badge variant="primary">Research Project</Badge>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2 line-clamp-2">{opportunity.name}</h3>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{opportunity.details}</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="text-xs text-gray-500">
+                  <h3 className="text-lg font-semibold mb-2 line-clamp-2 text-heading">{opportunity.name}</h3>
+                  <p className="text-body text-sm mb-3 line-clamp-2">{opportunity.details}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-default">
+                    <div className="text-xs text-muted">
                       {opportunity.requirement_tags?.length || 0} tags
                     </div>
                     <Button size="sm" variant="ghost" as={Link} to={`/opportunities/${opportunity.ID}`}>
@@ -152,12 +152,12 @@ export function StudentDashboard() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
             </div>
           ) : applications.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">No applications yet</p>
+              <FileText className="w-12 h-12 icon-muted mx-auto mb-4" />
+              <p className="text-body mb-4">No applications yet</p>
               <Button as={Link} to="/opportunities">
                 Browse Opportunities
               </Button>
@@ -176,17 +176,17 @@ export function StudentDashboard() {
                 return (
                   <div
                     key={application.ID}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
+                    className="p-4 border rounded-lg border-default hover:border-brand transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{application.opportunity?.name || 'Opportunity'}</h3>
+                          <h3 className="text-lg font-semibold text-heading">{application.opportunity?.name || 'Opportunity'}</h3>
                           <Badge variant={getStatusBadge(application.status)}>
                             {application.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted">
                           Applied on {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>

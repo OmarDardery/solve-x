@@ -157,10 +157,10 @@ export function OrganizationDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-heading">
             Welcome, {profile?.name || currentUser?.name || 'Organization'}!
           </h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">
+          <p className="text-body mt-1 text-sm sm:text-base">
             Manage your events and reach students
           </p>
         </div>
@@ -174,30 +174,30 @@ export function OrganizationDashboard() {
       <Card>
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+            <Building2 className="w-4 h-4 sm:w-5 sm:h-5 icon-primary" />
             Organization Profile
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+            <div className="flex items-center gap-2 text-body text-sm sm:text-base min-w-0">
               <Mail className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">{profile?.email || currentUser?.email}</span>
             </div>
             {profile?.contact && (
-              <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+              <div className="flex items-center gap-2 text-body text-sm sm:text-base min-w-0">
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span className="truncate">{profile.contact}</span>
               </div>
             )}
             {profile?.link && (
-              <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base min-w-0">
+              <div className="flex items-center gap-2 text-body text-sm sm:text-base min-w-0">
                 <Globe className="w-4 h-4 flex-shrink-0" />
                 <a 
                   href={profile.link} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-purple-600 hover:underline flex items-center gap-1 truncate"
+                  className="text-brand hover:underline flex items-center gap-1 truncate"
                 >
                   <span className="truncate">Website</span> <ExternalLink className="w-3 h-3 flex-shrink-0" />
                 </a>
@@ -211,12 +211,12 @@ export function OrganizationDashboard() {
       <Card>
         <CardContent className="p-4 sm:pt-6">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+            <div className="p-2 sm:p-3 bg-brand-light rounded-lg">
+              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 icon-primary" />
             </div>
             <div>
-              <p className="text-xl sm:text-2xl font-bold">{events.length}</p>
-              <p className="text-gray-500 text-xs sm:text-sm">Total Events</p>
+              <p className="text-xl sm:text-2xl font-bold text-heading">{events.length}</p>
+              <p className="text-muted text-xs sm:text-sm">Total Events</p>
             </div>
           </div>
         </CardContent>
@@ -231,9 +231,9 @@ export function OrganizationDashboard() {
         <CardContent>
           {events.length === 0 ? (
             <div className="text-center py-12">
-              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No events yet</h3>
-              <p className="text-gray-500 mb-6">Create your first event to reach students</p>
+              <Calendar className="w-16 h-16 icon-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-heading mb-2">No events yet</h3>
+              <p className="text-muted mb-6">Create your first event to reach students</p>
               <Button onClick={openCreateModal} className="flex items-center gap-2 mx-auto">
                 <Plus className="w-4 h-4" />
                 Create Your First Event
@@ -244,19 +244,19 @@ export function OrganizationDashboard() {
               {events.map((event) => (
                 <div 
                   key={event.ID} 
-                  className="p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-3 sm:p-4 border rounded-lg border-default hover:bg-tertiary transition-colors"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base sm:text-lg text-gray-900">{event.title}</h3>
+                      <h3 className="font-semibold text-base sm:text-lg text-heading">{event.title}</h3>
                       {event.date && (
-                        <p className="text-xs sm:text-sm text-purple-600 mt-1 flex items-center gap-1">
+                        <p className="text-xs sm:text-sm text-brand mt-1 flex items-center gap-1">
                           <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                           <span className="truncate">{event.date}</span>
                         </p>
                       )}
                       {event.description && (
-                        <p className="text-gray-600 mt-2 line-clamp-2 text-sm">{event.description}</p>
+                        <p className="text-body mt-2 line-clamp-2 text-sm">{event.description}</p>
                       )}
                       <div className="flex flex-wrap gap-2 sm:gap-3 mt-3">
                         {event.link && (
@@ -264,7 +264,7 @@ export function OrganizationDashboard() {
                             href={event.link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-xs sm:text-sm text-blue-600 hover:underline flex items-center gap-1"
+                            className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                           >
                             <LinkIcon className="w-3 h-3" />
                             Learn More
@@ -275,7 +275,7 @@ export function OrganizationDashboard() {
                             href={event.sign_up_link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-xs sm:text-sm text-green-600 hover:underline flex items-center gap-1"
+                            className="text-xs sm:text-sm text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
                             Sign Up

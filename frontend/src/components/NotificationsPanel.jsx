@@ -14,7 +14,7 @@ export function NotificationsPanel() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        className="relative p-2 text-body hover:text-heading transition-colors"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -35,10 +35,10 @@ export function NotificationsPanel() {
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-large border border-gray-200 z-50 max-h-96 overflow-hidden flex flex-col"
+              className="absolute right-0 mt-2 w-80 card z-50 max-h-96 overflow-hidden flex flex-col p-0"
             >
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Notifications</h3>
+              <div className="p-4 border-b border-default flex items-center justify-between">
+                <h3 className="font-semibold text-heading">Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <Button
@@ -53,25 +53,25 @@ export function NotificationsPanel() {
                   )}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-1 hover:bg-gray-100 rounded-lg"
+                    className="p-1 hover:bg-tertiary rounded-lg"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 icon-muted" />
                   </button>
                 </div>
               </div>
               <div className="overflow-y-auto flex-1">
                 {notifications.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-muted">
                     <Bell className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p>No notifications</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-default">
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                          !notification.read ? 'bg-primary-50/30' : ''
+                        className={`p-4 hover\:bg-tertiary transition-colors cursor-pointer ${
+                          !notification.read ? 'bg-brand-light' : ''
                         }`}
                         onClick={() => {
                           if (!notification.read) {
@@ -81,13 +81,13 @@ export function NotificationsPanel() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-heading">
                               {notification.title}
                             </p>
-                            <p className="text-xs text-gray-600 mt-1">
+                            <p className="text-xs text-body mt-1">
                               {notification.message}
                             </p>
-                            <p className="text-xs text-gray-400 mt-2">
+                            <p className="text-xs text-muted mt-2">
                               {notification.createdAt?.toDate
                                 ? formatDistanceToNow(notification.createdAt.toDate(), {
                                     addSuffix: true,
@@ -96,7 +96,7 @@ export function NotificationsPanel() {
                             </p>
                           </div>
                           {!notification.read && (
-                            <div className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0 mt-1" />
+                            <div className="w-2 h-2 bg-brand rounded-full flex-shrink-0 mt-1" />
                           )}
                         </div>
                       </div>

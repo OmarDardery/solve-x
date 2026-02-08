@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { Modal } from '../components/ui/Modal'
+import { ThemeToggle } from '../components/ui/ThemeToggle'
 import { USER_ROLES } from '../types'
 import toast from 'react-hot-toast'
 import { CheckCircle, XCircle, Mail } from 'lucide-react'
@@ -31,6 +33,7 @@ export function Signup() {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const { signup, sendVerificationCode, currentUser, userRole } = useAuth()
+  const { getLogo } = useTheme()
   const navigate = useNavigate()
 
   // Navigate after signup when auth state updates
@@ -197,14 +200,17 @@ export function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="auth-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-4">
             <img 
-              src="/logo.png" 
+              src={getLogo()}
               alt="SolveX Logo" 
-              className="h-20 w-20 object-contain"
+              className="h-16 sm:h-20 object-contain"
             />
           </div>
           <CardTitle className="text-center">Create an Account</CardTitle>
@@ -246,8 +252,8 @@ export function Signup() {
           {/* Step 2: Verification Code + Details */}
           {step === 2 && (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-blue-800">
+              <div className="alert-info">
+                <p className="text-sm">
                   <Mail className="w-4 h-4 inline mr-1" />
                   A verification code has been sent to <strong>{formData.email}</strong>
                 </p>
@@ -353,15 +359,15 @@ export function Signup() {
             </form>
           )}
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-body">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary-500 hover:text-primary-600 font-medium">
+            <Link to="/login" className="text-brand font-medium">
               Sign in
             </Link>
           </p>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-body">
             Are you an organization?{' '}
-            <Link to="/signup/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+            <Link to="/signup/organization" className="text-brand font-medium">
               Sign up here
             </Link>
           </p>
@@ -377,16 +383,16 @@ export function Signup() {
       >
         <div className="text-center py-6">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Account Created Successfully!</h3>
-          <p className="text-gray-600 mb-4">
+          <h3 className="text-xl font-semibold text-heading mb-2">Account Created Successfully!</h3>
+          <p className="text-body mb-4">
             Your account has been created. You will be redirected to your dashboard shortly.
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500"></div>
+          <div className="flex items-center justify-center gap-2 text-sm text-muted">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
             <span>Redirecting...</span>
           </div>
         </div>
@@ -401,12 +407,12 @@ export function Signup() {
       >
         <div className="text-center py-6">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <XCircle className="w-10 h-10 text-red-600" />
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <XCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
             </div>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Sign Up Failed</h3>
-          <p className="text-gray-600 mb-4">{errorMessage}</p>
+          <h3 className="text-xl font-semibold text-heading mb-2">Sign Up Failed</h3>
+          <p className="text-body mb-4">{errorMessage}</p>
           <Button onClick={() => setShowErrorModal(false)} className="w-full">
             Try Again
           </Button>

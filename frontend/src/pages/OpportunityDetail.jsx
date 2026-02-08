@@ -82,7 +82,7 @@ export function OpportunityDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
       </div>
     )
   }
@@ -113,7 +113,7 @@ export function OpportunityDetail() {
                   </div>
                   <CardTitle className="text-3xl mb-2">{opportunity.name}</CardTitle>
                   {opportunity.professor && (
-                    <p className="text-gray-600 mt-2">
+                    <p className="text-body mt-2">
                       By {opportunity.professor.first_name} {opportunity.professor.last_name}
                     </p>
                   )}
@@ -122,26 +122,26 @@ export function OpportunityDetail() {
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <h3 className="text-lg font-semibold mb-3">Details</h3>
-                <p className="text-gray-700 whitespace-pre-wrap mb-6">{opportunity.details}</p>
+                <h3 className="text-lg font-semibold mb-3 text-heading">Details</h3>
+                <p className="text-body whitespace-pre-wrap mb-6">{opportunity.details}</p>
 
                 {opportunity.requirements && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Requirements</h3>
-                    <p className="text-gray-700 whitespace-pre-wrap">{opportunity.requirements}</p>
+                    <h3 className="text-lg font-semibold mb-3 text-heading">Requirements</h3>
+                    <p className="text-body whitespace-pre-wrap">{opportunity.requirements}</p>
                   </div>
                 )}
 
                 {opportunity.reward && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Reward</h3>
-                    <p className="text-gray-700 whitespace-pre-wrap">{opportunity.reward}</p>
+                    <h3 className="text-lg font-semibold mb-3 text-heading">Reward</h3>
+                    <p className="text-body whitespace-pre-wrap">{opportunity.reward}</p>
                   </div>
                 )}
 
                 {opportunity.requirement_tags && opportunity.requirement_tags.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Tags</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-heading">Tags</h3>
                     <div className="flex flex-wrap gap-2">
                       {opportunity.requirement_tags.map((tag) => (
                         <Badge key={tag.ID} variant="default">
@@ -163,10 +163,10 @@ export function OpportunityDetail() {
               <div className="space-y-4">
                 {opportunity.CreatedAt && (
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <Calendar className="w-5 h-5 icon-muted" />
                     <div>
-                      <p className="text-sm text-gray-600">Posted</p>
-                      <p className="text-lg font-semibold">
+                      <p className="text-sm text-body">Posted</p>
+                      <p className="text-lg font-semibold text-heading">
                         {new Date(opportunity.CreatedAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -184,14 +184,14 @@ export function OpportunityDetail() {
               )}
 
               {hasApplied && (
-                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-green-700">
+                <div className="mt-6 alert-success">
+                  <div className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5" />
                     <span className="font-medium">You have applied to this opportunity</span>
                   </div>
                   <Link
                     to="/applications"
-                    className="text-sm text-green-600 hover:text-green-700 mt-2 inline-block"
+                    className="text-sm mt-2 inline-block"
                   >
                     View your application →
                   </Link>
@@ -199,9 +199,9 @@ export function OpportunityDetail() {
               )}
 
               {!isStudent && (
-                <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <p className="text-sm text-gray-600">
-                    Students can apply to this opportunity. <Link to="/login" className="text-primary-600 hover:text-primary-700">Sign in</Link> as a student to apply.
+                <div className="mt-6 p-4 bg-tertiary border rounded-lg border-default">
+                  <p className="text-sm text-body">
+                    Students can apply to this opportunity. <Link to="/login" className="text-brand">Sign in</Link> as a student to apply.
                   </p>
                 </div>
               )}
@@ -219,8 +219,8 @@ export function OpportunityDetail() {
       >
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold mb-2">{opportunity.name}</h3>
-            <p className="text-sm text-gray-600 mb-4">{opportunity.details?.substring(0, 200)}...</p>
+            <h3 className="font-semibold mb-2 text-heading">{opportunity.name}</h3>
+            <p className="text-sm text-body mb-4">{opportunity.details?.substring(0, 200)}...</p>
           </div>
 
           <Textarea
@@ -239,7 +239,7 @@ export function OpportunityDetail() {
             type="url"
           />
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             Tip: You can link to your resume on Google Drive, Dropbox, or your LinkedIn profile.
           </p>
 

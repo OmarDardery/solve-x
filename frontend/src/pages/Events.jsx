@@ -70,7 +70,7 @@ export function Events() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
       </div>
     )
   }
@@ -79,8 +79,8 @@ export function Events() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Events</h1>
-        <p className="text-sm sm:text-base text-gray-500 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-heading">Events</h1>
+        <p className="text-sm sm:text-base text-body mt-1">
           Discover events from organizations and companies
         </p>
       </div>
@@ -102,11 +102,11 @@ export function Events() {
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Calendar className="w-16 h-16 icon-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-heading mb-2">
                 {searchQuery ? 'No events found' : 'No events available'}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-body">
                 {searchQuery
                   ? 'Try adjusting your search query'
                   : 'Check back later for upcoming events'}
@@ -125,7 +125,7 @@ export function Events() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
                 {event.date && (
-                  <p className="text-sm text-purple-600 flex items-center gap-1 mt-1">
+                  <p className="text-sm text-brand flex items-center gap-1 mt-1">
                     <Calendar className="w-4 h-4" />
                     {event.date}
                   </p>
@@ -133,7 +133,7 @@ export function Events() {
               </CardHeader>
               <CardContent>
                 {event.description && (
-                  <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                  <p className="text-body text-sm line-clamp-3 mb-4">
                     {event.description}
                   </p>
                 )}
@@ -143,16 +143,16 @@ export function Events() {
                   <Link
                     to={`/organizations/${event.organization.ID}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full flex items-center gap-2 p-2 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors text-left"
+                    className="w-full flex items-center gap-2 p-2 bg-tertiary rounded-lg hover:bg-brand-light transition-colors text-left"
                   >
-                    <div className="p-2 bg-purple-100 rounded-full">
-                      <Building2 className="w-4 h-4 text-purple-600" />
+                    <div className="p-2 bg-brand-light rounded-full">
+                      <Building2 className="w-4 h-4 icon-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-purple-600 truncate hover:underline">
+                      <p className="text-sm font-medium text-brand truncate hover:underline">
                         {event.organization.name}
                       </p>
-                      <p className="text-xs text-gray-500">Click to view details</p>
+                      <p className="text-xs text-muted">Click to view details</p>
                     </div>
                   </Link>
                 )}
@@ -204,7 +204,7 @@ export function Events() {
           <div className="space-y-6">
             {/* Date */}
             {selectedEvent.date && (
-              <div className="flex items-center gap-2 text-purple-600">
+              <div className="flex items-center gap-2 text-brand">
                 <Calendar className="w-5 h-5" />
                 <span className="font-medium">{selectedEvent.date}</span>
               </div>
@@ -213,16 +213,16 @@ export function Events() {
             {/* Description */}
             {selectedEvent.description && (
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">About This Event</h4>
-                <p className="text-gray-600 whitespace-pre-wrap">{selectedEvent.description}</p>
+                <h4 className="font-medium text-heading mb-2">About This Event</h4>
+                <p className="text-body whitespace-pre-wrap">{selectedEvent.description}</p>
               </div>
             )}
 
             {/* Organization Details */}
             {selectedEvent.organization && (
-              <div className="border-t pt-6">
-                <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-purple-600" />
+              <div className="border-t border-default pt-6">
+                <h4 className="font-medium text-heading mb-4 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 icon-primary" />
                   Hosted by
                 </h4>
                 <Link
@@ -230,12 +230,12 @@ export function Events() {
                   onClick={closeDetailModal}
                   className="block"
                 >
-                  <Card className="bg-gray-50 hover:bg-purple-50 transition-colors cursor-pointer">
+                  <Card className="bg-tertiary hover:bg-brand-light transition-colors cursor-pointer">
                     <CardContent className="pt-4">
-                      <h5 className="text-lg font-semibold text-purple-600 mb-1 hover:underline">
+                      <h5 className="text-lg font-semibold text-brand mb-1 hover:underline">
                         {selectedEvent.organization.name}
                       </h5>
-                      <p className="text-sm text-gray-500">Click to view organization details and all events</p>
+                      <p className="text-sm text-muted">Click to view organization details and all events</p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -243,7 +243,7 @@ export function Events() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-default">
               {selectedEvent.link && (
                 <Button
                   variant="outline"

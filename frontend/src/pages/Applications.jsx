@@ -77,8 +77,8 @@ export function Applications() {
     <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">Applications</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-heading">Applications</h1>
+          <p className="text-body mt-1 text-sm sm:text-base">
             {userRole === 'student' ? 'Track your applications' : 'Manage applications'}
           </p>
         </div>
@@ -99,13 +99,13 @@ export function Applications() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"></div>
         </div>
       ) : filteredApplications.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No applications found.</p>
+            <FileText className="w-12 h-12 icon-muted mx-auto mb-4" />
+            <p className="text-body">No applications found.</p>
           </CardContent>
         </Card>
       ) : (
@@ -118,8 +118,8 @@ export function Applications() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
-                        <StatusIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                        <h3 className="text-base sm:text-lg font-semibold truncate">
+                        <StatusIcon className="w-5 h-5 icon-muted flex-shrink-0" />
+                        <h3 className="text-base sm:text-lg font-semibold truncate text-heading">
                           {application.opportunity?.name || 'Opportunity'}
                         </h3>
                         <Badge variant={getStatusBadge(application.status)} className="text-xs">
@@ -127,14 +127,14 @@ export function Applications() {
                         </Badge>
                       </div>
                       {application.opportunity?.details && (
-                        <p className="text-gray-600 mb-3 text-sm line-clamp-2">{application.opportunity.details.substring(0, 150)}...</p>
+                        <p className="text-body mb-3 text-sm line-clamp-2">{application.opportunity.details.substring(0, 150)}...</p>
                       )}
                       
                       {/* Application Message */}
                       {application.message && (
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
-                          <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Message:</p>
-                          <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap line-clamp-3 sm:line-clamp-none">{application.message}</p>
+                        <div className="bg-tertiary border rounded-lg border-default p-3 mb-3">
+                          <p className="text-xs sm:text-sm font-medium text-heading mb-1">Message:</p>
+                          <p className="text-body text-xs sm:text-sm whitespace-pre-wrap line-clamp-3 sm:line-clamp-none">{application.message}</p>
                         </div>
                       )}
                       
@@ -145,7 +145,7 @@ export function Applications() {
                             href={application.resume_link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-xs sm:text-sm text-primary-600 hover:text-primary-700"
+                            className="inline-flex items-center gap-2 text-xs sm:text-sm text-brand"
                           >
                             <ExternalLink className="w-4 h-4" />
                             View Resume/CV
@@ -153,7 +153,7 @@ export function Applications() {
                         </div>
                       )}
                       
-                      <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
+                      <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted">
                         <span>
                           Applied: {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </span>
@@ -179,7 +179,7 @@ export function Applications() {
                 </CardContent>
               </Card>
             )
-          })}}
+          })}
         </div>
       )}
     </div>

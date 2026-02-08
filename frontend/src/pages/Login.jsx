@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
+import { ThemeToggle } from '../components/ui/ThemeToggle'
 import { USER_ROLES } from '../types'
 import toast from 'react-hot-toast'
 
@@ -15,6 +17,7 @@ export function Login() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const { login, currentUser, userRole, loading: authLoading } = useAuth()
+  const { getLogo } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -103,14 +106,17 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="auth-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-4">
             <img 
-              src="/logo.png" 
+              src={getLogo()}
               alt="SolveX Logo" 
-              className="h-20 w-20 object-contain"
+              className="h-16 sm:h-20 object-contain"
             />
           </div>
           <CardTitle className="text-center">Welcome to SolveX</CardTitle>
@@ -170,15 +176,15 @@ export function Login() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-body">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-primary-500 hover:text-primary-600 font-medium">
+            <Link to="/signup" className="text-brand font-medium">
               Sign up
             </Link>
           </p>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-body">
             Are you an organization?{' '}
-            <Link to="/login/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+            <Link to="/login/organization" className="text-brand font-medium">
               Sign in here
             </Link>
           </p>

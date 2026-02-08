@@ -206,7 +206,7 @@ export function OpportunityForm({ onSuccess, onCancel }) {
 
         {/* Tags Section */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-heading mb-2">
             Required Skills / Tags
           </label>
           
@@ -233,19 +233,19 @@ export function OpportunityForm({ onSuccess, onCancel }) {
 
           {/* Search Input */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 icon-muted" />
             <input
               type="text"
               value={tagSearch}
               onChange={(e) => setTagSearch(e.target.value)}
               placeholder="Search tags..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input-field pl-10"
             />
           </div>
 
           {/* Tag Search Results */}
           {tagSearch && (
-            <div className="mt-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
+            <div className="mt-2 max-h-40 overflow-y-auto border rounded-lg border-default card p-0">
               {filteredTags.length > 0 ? (
                 <div className="p-2 space-y-1">
                   {filteredTags.map(tag => (
@@ -253,17 +253,17 @@ export function OpportunityForm({ onSuccess, onCancel }) {
                       key={tag.ID}
                       type="button"
                       onClick={() => handleAddTag(tag.ID)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md transition-colors"
+                      className="w-full text-left px-3 py-2 hover:bg-tertiary rounded-md transition-colors"
                     >
-                      <div className="font-medium text-sm">{tag.name}</div>
+                      <div className="font-medium text-sm text-heading">{tag.name}</div>
                       {tag.description && (
-                        <div className="text-xs text-gray-500">{tag.description}</div>
+                        <div className="text-xs text-muted">{tag.description}</div>
                       )}
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-gray-500">
+                <div className="p-4 text-center text-muted">
                   <p className="text-sm mb-2">No tags found for "{tagSearch}"</p>
                   <Button
                     type="button"
@@ -285,20 +285,20 @@ export function OpportunityForm({ onSuccess, onCancel }) {
           {/* Available Tags (when not searching) */}
           {!tagSearch && filteredTags.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs text-gray-500 mb-2">Available tags (click to add):</p>
+              <p className="text-xs text-muted mb-2">Available tags (click to add):</p>
               <div className="flex flex-wrap gap-2">
                 {filteredTags.slice(0, 10).map(tag => (
                   <button
                     key={tag.ID}
                     type="button"
                     onClick={() => handleAddTag(tag.ID)}
-                    className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                    className="px-3 py-1 rounded-full text-sm font-medium bg-tertiary text-heading hover:bg-brand-light transition-colors"
                   >
                     {tag.name}
                   </button>
                 ))}
                 {filteredTags.length > 10 && (
-                  <span className="px-3 py-1 text-sm text-gray-500">
+                  <span className="px-3 py-1 text-sm text-muted">
                     +{filteredTags.length - 10} more (use search)
                   </span>
                 )}
@@ -310,7 +310,7 @@ export function OpportunityForm({ onSuccess, onCancel }) {
           <button
             type="button"
             onClick={() => setShowAddTagModal(true)}
-            className="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
+            className="mt-3 inline-flex items-center text-sm text-brand"
           >
             <Plus className="w-4 h-4 mr-1" />
             Create new tag

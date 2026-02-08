@@ -79,8 +79,8 @@ export function Opportunities() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">Research Opportunities</h1>
-        <p className="text-gray-600 mt-1 text-sm sm:text-base">Browse and apply to research projects and opportunities</p>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-heading">Research Opportunities</h1>
+        <p className="text-body mt-1 text-sm sm:text-base">Browse and apply to research projects and opportunities</p>
       </div>
 
       {/* Filters */}
@@ -114,12 +114,12 @@ export function Opportunities() {
       {/* Opportunities List */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"></div>
         </div>
       ) : filteredOpportunities.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <p className="text-gray-600">No opportunities found. Try adjusting your filters.</p>
+            <p className="text-body">No opportunities found. Try adjusting your filters.</p>
           </CardContent>
         </Card>
       ) : (
@@ -130,8 +130,8 @@ export function Opportunities() {
                 <div className="flex items-start justify-between mb-3">
                   <Badge variant="primary" className="text-xs">{getTypeLabel(opportunity.type)}</Badge>
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold mb-2 line-clamp-2">{opportunity.name}</h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{opportunity.details}</p>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 line-clamp-2 text-heading">{opportunity.name}</h3>
+                <p className="text-body text-sm mb-4 line-clamp-3">{opportunity.details}</p>
                 
                 {opportunity.requirement_tags && opportunity.requirement_tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-3">
@@ -148,8 +148,8 @@ export function Opportunities() {
                   </div>
                 )}
                 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="text-xs sm:text-sm text-gray-500 truncate mr-2">
+                <div className="flex items-center justify-between pt-4 border-t border-default">
+                  <div className="text-xs sm:text-sm text-muted truncate mr-2">
                     {opportunity.professor?.first_name} {opportunity.professor?.last_name}
                   </div>
                   <Button size="sm" as={Link} to={`/opportunities/${opportunity.ID}`}>

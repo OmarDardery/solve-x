@@ -3,11 +3,7 @@ import { cn } from '../../utils/cn'
 export function Card({ children, className, hover = true, ...props }) {
   return (
     <div
-      className={cn(
-        'bg-white rounded-xl shadow-soft p-6 transition-all duration-200',
-        hover && 'hover:shadow-medium',
-        className
-      )}
+      className={cn('card', className)}
       {...props}
     >
       {children}
@@ -25,7 +21,7 @@ export function CardHeader({ children, className }) {
 
 export function CardTitle({ children, className }) {
   return (
-    <h3 className={cn('text-xl font-display font-semibold text-gray-900', className)}>
+    <h3 className={cn('text-xl font-semibold text-heading', className)}>
       {children}
     </h3>
   )
@@ -33,7 +29,7 @@ export function CardTitle({ children, className }) {
 
 export function CardDescription({ children, className }) {
   return (
-    <p className={cn('text-sm text-gray-600 mt-1', className)}>
+    <p className={cn('text-sm text-body mt-1', className)}>
       {children}
     </p>
   )

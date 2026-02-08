@@ -107,7 +107,7 @@ export function SelectRole() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="auth-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-3xl">
         <CardHeader>
           <CardTitle className="text-center">Select Your Role</CardTitle>
@@ -125,19 +125,19 @@ export function SelectRole() {
                     key={role.value}
                     type="button"
                     onClick={() => setSelectedRole(role.value)}
-                    className={`p-6 rounded-xl border-2 transition-all text-left ${
+                    className={`p-6 rounded-xl border-2 transition-all text-left role-card ${
                       selectedRole === role.value
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                        ? 'border-brand bg-brand-light'
+                        : 'border-default hover:border-brand-hover'
                     }`}
                   >
                     <Icon
                       className={`w-8 h-8 mb-3 ${
-                        selectedRole === role.value ? 'text-primary-500' : 'text-gray-400'
+                        selectedRole === role.value ? 'icon-primary' : 'icon-muted'
                       }`}
                     />
-                    <h3 className="font-semibold text-lg mb-2">{role.label}</h3>
-                    <p className="text-sm text-gray-600">{role.description}</p>
+                    <h3 className="font-semibold text-lg mb-2 text-heading">{role.label}</h3>
+                    <p className="text-sm text-body">{role.description}</p>
                   </button>
                 )
               })}

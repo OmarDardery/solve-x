@@ -118,7 +118,7 @@ export function ProjectForm({ onSuccess, onCancel }) {
         </div>
         
         <div className="space-y-4 pt-2">
-          <h3 className="text-sm font-semibold text-gray-700">Optional Links (Google Drive)</h3>
+          <h3 className="text-sm font-semibold text-heading">Optional Links (Google Drive)</h3>
           
           <Input
             label="CV Template Link"
@@ -147,15 +147,15 @@ export function ProjectForm({ onSuccess, onCancel }) {
             type="checkbox"
             id="published"
             {...register('published')}
-            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+            className="w-4 h-4 text-brand border-default rounded focus:ring-brand"
           />
-          <label htmlFor="published" className="text-sm text-gray-700 cursor-pointer">
+          <label htmlFor="published" className="text-sm text-body cursor-pointer">
             Publish immediately (make visible to students)
           </label>
         </div>
       </div>
       
-      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 mt-6">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-default mt-6">
         <Button type="submit" disabled={loading} className="flex-1 sm:flex-none sm:min-w-[200px]">
           {loading ? (isPublished ? 'Publishing...' : 'Creating...') : (isPublished ? 'Publish Opportunity' : 'Create as Draft')}
         </Button>

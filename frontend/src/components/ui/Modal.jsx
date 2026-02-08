@@ -32,7 +32,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+            className="modal-backdrop fixed inset-0 z-40 backdrop-blur-sm"
           />
           
           {/* Modal */}
@@ -42,7 +42,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className={cn(
-                'bg-white rounded-lg sm:rounded-xl shadow-large w-full my-4 sm:my-8',
+                'modal-content w-full my-4 sm:my-8',
                 'max-h-[95vh] sm:max-h-[90vh] flex flex-col',
                 sizes[size],
                 className
@@ -50,15 +50,15 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
             >
               {/* Header */}
               {title && (
-                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
-                  <h2 className="text-xl sm:text-2xl font-display font-semibold text-gray-900 pr-4">
+                <div className="flex items-center justify-between p-4 sm:p-6 divider border-b flex-shrink-0">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-heading pr-4">
                     {title}
                   </h2>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                    className="btn-ghost p-2 rounded-lg flex-shrink-0"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 icon-muted" />
                   </button>
                 </div>
               )}

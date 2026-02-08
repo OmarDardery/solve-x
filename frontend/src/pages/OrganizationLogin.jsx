@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { Modal } from '../components/ui/Modal'
+import { ThemeToggle } from '../components/ui/ThemeToggle'
 import toast from 'react-hot-toast'
 import { XCircle, Building2 } from 'lucide-react'
 
@@ -18,6 +20,7 @@ export function OrganizationLogin() {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const { login } = useAuth()
+  const { getLogo } = useTheme()
   const navigate = useNavigate()
 
   const validate = () => {
@@ -54,11 +57,17 @@ export function OrganizationLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50 px-4 py-12">
+    <div className="auth-bg flex items-center justify-center px-4 py-12 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-            <Building2 className="w-6 h-6 text-purple-600" />
+          <div className="mx-auto w-20 h-20 mb-4">
+            <img src={getLogo()} alt="SolveX" className="w-full h-full object-contain" />
+          </div>
+          <div className="mx-auto w-12 h-12 bg-brand-light rounded-full flex items-center justify-center mb-4">
+            <Building2 className="w-6 h-6 icon-primary" />
           </div>
           <CardTitle className="text-2xl">Organization Sign In</CardTitle>
           <CardDescription>
@@ -91,15 +100,15 @@ export function OrganizationLogin() {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
             
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-body">
               Don't have an account?{' '}
-              <Link to="/signup/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+              <Link to="/signup/organization" className="text-brand font-medium">
                 Sign up
               </Link>
             </p>
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-body">
               Not an organization?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link to="/login" className="text-brand font-medium">
                 Sign in as Student/Professor
               </Link>
             </p>
@@ -116,7 +125,7 @@ export function OrganizationLogin() {
       >
         <div className="text-center py-4">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">{errorMessage}</p>
+          <p className="text-body mb-4">{errorMessage}</p>
           <Button onClick={() => setShowErrorModal(false)}>Try Again</Button>
         </div>
       </Modal>

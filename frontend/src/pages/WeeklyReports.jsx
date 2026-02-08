@@ -83,8 +83,8 @@ export function WeeklyReports() {
       <div className="space-y-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">Weekly Reports</h1>
-            <p className="text-gray-600 mt-1">Submit your weekly progress reports</p>
+            <h1 className="text-3xl font-display font-bold text-heading">Weekly Reports</h1>
+            <p className="text-body mt-1">Submit your weekly progress reports</p>
           </div>
           <Button onClick={() => setShowSubmitModal(true)}>
             <Plus className="w-5 h-5 mr-2" />
@@ -99,21 +99,21 @@ export function WeeklyReports() {
           <CardContent>
             {loading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
               </div>
             ) : reports.length === 0 ? (
               <div className="text-center py-8">
-                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No reports submitted yet.</p>
+                <FileText className="w-12 h-12 icon-muted mx-auto mb-4" />
+                <p className="text-body">No reports submitted yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {reports.map((report) => (
-                  <div key={report.ID} className="p-4 border border-gray-200 rounded-lg">
+                  <div key={report.ID} className="p-4 border rounded-lg border-default">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-gray-400" />
-                        <span className="font-semibold">
+                        <Calendar className="w-5 h-5 icon-muted" />
+                        <span className="font-semibold text-heading">
                           {new Date(report.CreatedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
@@ -125,13 +125,13 @@ export function WeeklyReports() {
                     </div>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <span className="font-medium">Report Document:</span>
+                        <span className="font-medium text-heading">Report Document:</span>
                         <div className="mt-1">
                           <a
                             href={report.drive_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-primary-500 hover:text-primary-600 text-sm flex items-center gap-1"
+                            className="text-brand text-sm flex items-center gap-1"
                           >
                             View Document
                             <ExternalLink className="w-3 h-3" />
@@ -170,7 +170,7 @@ export function WeeklyReports() {
               onChange={(e) => setDriveLink(e.target.value)}
               required
             />
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-body">
               Upload your weekly report as a Word document to Google Drive and paste the link here
             </p>
             <div className="flex gap-3 pt-4">
@@ -196,8 +196,8 @@ export function WeeklyReports() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold text-gray-900">Weekly Reports</h1>
-          <p className="text-gray-600 mt-1">Review student progress reports</p>
+          <h1 className="text-3xl font-display font-bold text-heading">Weekly Reports</h1>
+          <p className="text-body mt-1">Review student progress reports</p>
         </div>
       </div>
 
@@ -208,21 +208,21 @@ export function WeeklyReports() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
             </div>
           ) : reports.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No reports received yet.</p>
+              <FileText className="w-12 h-12 icon-muted mx-auto mb-4" />
+              <p className="text-body">No reports received yet.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {reports.map((report) => (
-                <div key={report.ID} className="p-4 border border-gray-200 rounded-lg">
+                <div key={report.ID} className="p-4 border rounded-lg border-default">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-gray-400" />
-                      <span className="font-semibold">
+                      <Calendar className="w-5 h-5 icon-muted" />
+                      <span className="font-semibold text-heading">
                         {new Date(report.CreatedAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
@@ -239,20 +239,20 @@ export function WeeklyReports() {
                   <div className="space-y-2 text-sm">
                     {report.Student && (
                       <div>
-                        <span className="font-medium">Student:</span>
-                        <p className="text-gray-600">
+                        <span className="font-medium text-heading">Student:</span>
+                        <p className="text-body">
                           {report.Student.first_name} {report.Student.last_name} ({report.Student.email})
                         </p>
                       </div>
                     )}
                     <div>
-                      <span className="font-medium">Report Document:</span>
+                      <span className="font-medium text-heading">Report Document:</span>
                       <div className="mt-1">
                         <a
                           href={report.drive_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary-500 hover:text-primary-600 text-sm flex items-center gap-1"
+                          className="text-brand text-sm flex items-center gap-1"
                         >
                           View Document
                           <ExternalLink className="w-3 h-3" />

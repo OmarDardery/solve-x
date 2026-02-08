@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from '../components/ui/Button'
 import { Input, Textarea } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { Modal } from '../components/ui/Modal'
+import { ThemeToggle } from '../components/ui/ThemeToggle'
 import toast from 'react-hot-toast'
 import { CheckCircle, XCircle, Mail, Building2 } from 'lucide-react'
 
@@ -29,6 +31,7 @@ export function OrganizationSignup() {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const { signupOrganization, sendVerificationCode, currentUser, userRole } = useAuth()
+  const { getLogo } = useTheme()
   const navigate = useNavigate()
 
   // Navigate after signup when auth state updates
@@ -132,11 +135,17 @@ export function OrganizationSignup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50 px-4 py-12">
+    <div className="auth-bg flex items-center justify-center px-4 py-12 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-            <Building2 className="w-6 h-6 text-purple-600" />
+          <div className="mx-auto w-20 h-20 mb-4">
+            <img src={getLogo()} alt="SolveX" className="w-full h-full object-contain" />
+          </div>
+          <div className="mx-auto w-12 h-12 bg-brand-light rounded-full flex items-center justify-center mb-4">
+            <Building2 className="w-6 h-6 icon-primary" />
           </div>
           <CardTitle className="text-2xl">Organization Sign Up</CardTitle>
           <CardDescription>
@@ -161,24 +170,24 @@ export function OrganizationSignup() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Sending...' : 'Send Verification Code'}
               </Button>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-body">
                 Already have an account?{' '}
-                <Link to="/login/organization" className="text-purple-600 hover:text-purple-700 font-medium">
+                <Link to="/login/organization" className="text-brand font-medium">
                   Sign in
                 </Link>
               </p>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-body">
                 Not an organization?{' '}
-                <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+                <Link to="/signup" className="text-brand font-medium">
                   Sign up as Student/Professor
                 </Link>
               </p>
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-4">
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                <Mail className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-700">Code sent to {formData.email}</span>
+              <div className="alert-success">
+                <Mail className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span className="text-sm">Code sent to {formData.email}</span>
               </div>
               
               <Input
@@ -262,7 +271,7 @@ export function OrganizationSignup() {
       >
         <div className="text-center py-4">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">
+          <p className="text-body mb-4">
             Your organization account has been created successfully. Redirecting to dashboard...
           </p>
         </div>
@@ -277,7 +286,7 @@ export function OrganizationSignup() {
       >
         <div className="text-center py-4">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">{errorMessage}</p>
+          <p className="text-body mb-4">{errorMessage}</p>
           <Button onClick={() => setShowErrorModal(false)}>Try Again</Button>
         </div>
       </Modal>

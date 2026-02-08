@@ -76,13 +76,13 @@ export function ProfessorDashboard() {
   ]
 
   return (
-    <div className="space-y-6 sm:space-y-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen -m-4 sm:-m-6 p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-blue-100">
+    <div className="page-bg space-y-6 sm:space-y-8 -m-4 sm:-m-6 p-4 sm:p-6">
+      <div className="card flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-heading">
             Professor Dashboard
           </h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your research projects and applications</p>
+          <p className="text-body mt-1 text-sm sm:text-base">Manage your research projects and applications</p>
         </div>
         <div className="flex gap-3">
           <Button onClick={() => setShowCreateModal(true)} className="text-sm sm:text-base">
@@ -101,8 +101,8 @@ export function ProfessorDashboard() {
               <CardContent className="p-3 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1 line-clamp-1">{stat.label}</p>
-                    <p className="text-xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-body mb-1 line-clamp-1">{stat.label}</p>
+                    <p className="text-xl sm:text-3xl font-bold text-heading">{stat.value}</p>
                   </div>
                   <Icon className={`w-8 h-8 sm:w-12 sm:h-12 ${stat.color} hidden sm:block`} />
                 </div>
@@ -125,12 +125,12 @@ export function ProfessorDashboard() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
             </div>
           ) : publishedOpportunities.length === 0 ? (
             <div className="text-center py-8">
-              <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">No published opportunities yet. Create and publish your first opportunity!</p>
+              <Briefcase className="w-12 h-12 icon-muted mx-auto mb-4" />
+              <p className="text-body mb-4">No published opportunities yet. Create and publish your first opportunity!</p>
               <Button onClick={() => setShowCreateModal(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Opportunity
@@ -143,19 +143,19 @@ export function ProfessorDashboard() {
                 return (
                   <div
                     key={opportunity.ID}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
+                    className="p-4 border rounded-lg border-default hover:border-brand transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{opportunity.name}</h3>
+                          <h3 className="text-lg font-semibold text-heading">{opportunity.name}</h3>
                           <Badge variant="success">Active</Badge>
                           {applications.filter(a => a.opportunity_id === opportunity.ID).length > 0 && (
                             <Badge variant="default">{applications.filter(a => a.opportunity_id === opportunity.ID).length} applications</Badge>
                           )}
                         </div>
-                        <p className="text-gray-600 mb-3 line-clamp-2">{opportunity.details}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <p className="text-body mb-3 line-clamp-2">{opportunity.details}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted">
                           <span>{opportunity.type}</span>
                           <span>•</span>
                           <span>{opportunity.requirement_tags?.length || 0} tags</span>
@@ -190,12 +190,12 @@ export function ProfessorDashboard() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
             </div>
           ) : applications.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No applications yet. Applications will appear here when students apply to your opportunities.</p>
+              <FileText className="w-12 h-12 icon-muted mx-auto mb-4" />
+              <p className="text-body">No applications yet. Applications will appear here when students apply to your opportunities.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -211,17 +211,17 @@ export function ProfessorDashboard() {
                 return (
                   <div
                     key={application.ID}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
+                    className="p-4 border rounded-lg border-default hover:border-brand transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{application.opportunity?.name || 'Opportunity'}</h3>
+                          <h3 className="text-lg font-semibold text-heading">{application.opportunity?.name || 'Opportunity'}</h3>
                           <Badge variant={getStatusBadge(application.status)}>
                             {application.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted">
                           {application.student?.first_name} {application.student?.last_name} • Applied on {application.CreatedAt ? new Date(application.CreatedAt).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>

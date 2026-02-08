@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { Button } from '../components/ui/Button'
 import { Layout } from '../components/layout/Layout'
 import { Search, BookOpen, Users, TrendingUp, ArrowRight } from 'lucide-react'
@@ -7,6 +8,7 @@ import { motion } from 'framer-motion'
 
 export function Home() {
   const { currentUser } = useAuth()
+  const { getLogo } = useTheme()
 
   return (
     <Layout>
@@ -17,20 +19,17 @@ export function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center py-8 sm:py-16 px-4"
         >
-          <div className="flex justify-center mb-4 sm:mb-6">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <img 
-              src="/logo.png" 
+              src={getLogo()}
               alt="SolveX Logo" 
-              className="h-16 w-16 sm:h-24 sm:w-24 object-contain"
+              className="h-16 sm:h-20 md:h-24 object-contain"
             />
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 mb-4 sm:mb-6">
-            Welcome to{' '}
-            <span className="bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent">
-              SolveX
-            </span>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-heading mb-4 sm:mb-6">
+            Welcome to SolveX
           </h1>
-          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8">
+          <p className="text-base sm:text-xl text-body max-w-2xl mx-auto mb-6 sm:mb-8">
             The premium platform for student research, academic collaboration, and skill development
           </p>
           {!currentUser ? (
@@ -82,13 +81,13 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="card text-center p-4 sm:p-6"
+                className="card text-center"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4" style={{ backgroundColor: 'rgba(100, 58, 230, 0.1)' }}>
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 icon-primary" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-heading mb-2">{feature.title}</h3>
+                <p className="text-body text-sm sm:text-base">{feature.description}</p>
               </motion.div>
             )
           })}
