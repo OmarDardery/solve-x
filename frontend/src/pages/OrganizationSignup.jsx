@@ -91,7 +91,7 @@ export function OrganizationSignup() {
     
     setLoading(true)
     try {
-      await sendVerificationCode(formData.email)
+      await sendVerificationCode(formData.email, 'organization')
       setCodeSent(true)
       setStep(2)
       toast.success('Verification code sent to your email!')

@@ -121,3 +121,10 @@ func UpdateOrganization(db *gorm.DB, id uint, updates map[string]interface{}) (*
 func DeleteOrganization(db *gorm.DB, id uint) error {
 	return db.Delete(&Organization{}, id).Error
 }
+
+// OrganizationEmailExists checks if an organization with the given email exists
+func OrganizationEmailExists(db *gorm.DB, email string) bool {
+	var organization Organization
+	err := db.Where("email = ?", email).First(&organization).Error
+	return err == nil
+}

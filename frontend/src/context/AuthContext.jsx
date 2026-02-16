@@ -154,9 +154,9 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function sendVerificationCode(email) {
+  async function sendVerificationCode(email, role = '') {
     try {
-      await apiService.sendVerificationCode(email)
+      await apiService.sendVerificationCode(email, role)
       return { success: true }
     } catch (error) {
       console.error('Send verification code error:', error)

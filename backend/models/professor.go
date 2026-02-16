@@ -136,3 +136,10 @@ func DeleteProfessor(db *gorm.DB, id uint) error {
 
 	return nil
 }
+
+// ProfessorEmailExists checks if a professor with the given email exists
+func ProfessorEmailExists(db *gorm.DB, email string) bool {
+	var professor Professor
+	err := db.Where("email = ?", email).First(&professor).Error
+	return err == nil
+}

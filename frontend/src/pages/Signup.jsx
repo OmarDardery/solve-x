@@ -8,17 +8,15 @@ import { Select } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { Modal } from '../components/ui/Modal'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
-import { USER_ROLES } from '../types'
+import { USER_ROLES, getDomainsForRole, buildEmail } from '../types'
 import toast from 'react-hot-toast'
 import { CheckCircle, XCircle, Mail } from 'lucide-react'
 
-// Email validation regex
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
 export function Signup() {
-  const [step, setStep] = useState(1) // 1: email, 2: code + details
+  const [step, setStep] = useState(1) // 1: role + identifier, 2: code + details
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // Student ID or professor name
+    domain: '',
     verificationCode: '',
     password: '',
     confirmPassword: '',
@@ -32,18 +30,32 @@ export function Signup() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [availableDomains, setAvailableDomains] = useState([])
   const { signup, sendVerificationCode, currentUser, userRole } = useAuth()
   const { getLogo } = useTheme()
   const navigate = useNavigate()
 
+  // Update available domains when role changes
+  useEffect(() => {
+    if (formData.role) {
+      const domains = getDomainsForRole(formData.role)
+      setAvailableDomains(domains)
+      // Auto-select the first domain
+      if (domains.length > 0) {
+        setFormData(prev => ({ ...prev, domain: domains[0] }))
+      }
+    } else {
+      setAvailableDomains([])
+      setFormData(prev => ({ ...prev, domain: '' }))
+    }
+  }, [formData.role])
+
   // Navigate after signup when auth state updates
   useEffect(() => {
     if (currentUser && userRole && showSuccessModal) {
-      // Navigate after showing success modal briefly
       const timer = setTimeout(() => {
         const dashboardPaths = {
           [USER_ROLES.PROFESSOR]: '/dashboard/professor',
-          [USER_ROLES.TEACHING_ASSISTANT]: '/dashboard/ta',
           [USER_ROLES.STUDENT]: '/dashboard/student',
           [USER_ROLES.ORGANIZATION]: '/dashboard/organization',
         }
@@ -54,22 +66,55 @@ export function Signup() {
     }
   }, [currentUser, userRole, showSuccessModal, navigate])
 
-  const validateEmail = (email) => {
-    if (!email) {
-      return 'Email is required'
+  // Get the placeholder text based on role
+  const getIdentifierPlaceholder = () => {
+    if (formData.role === USER_ROLES.STUDENT) {
+      return '2x-xxxxxx'
+    } else if (formData.role === USER_ROLES.PROFESSOR) {
+      return 'firstname.lastname'
     }
-    if (!emailRegex.test(email)) {
-      return 'Please enter a valid email address'
+    return 'Enter your identifier'
+  }
+
+  // Get the label text based on role
+  const getIdentifierLabel = () => {
+    if (formData.role === USER_ROLES.STUDENT) {
+      return 'Student ID'
+    } else if (formData.role === USER_ROLES.PROFESSOR) {
+      return 'Username'
+    }
+    return 'Identifier'
+  }
+
+  const validateIdentifier = (identifier) => {
+    if (!identifier) {
+      return 'Identifier is required'
+    }
+    if (formData.role === USER_ROLES.STUDENT) {
+      // Student ID format: 2x-xxxxxx (e.g., 21-101234)
+      if (!/^2\d-\d{6}$/.test(identifier)) {
+        return 'Invalid student ID format (e.g., 21-101234)'
+      }
     }
     return null
   }
 
   const validateStep1 = () => {
     const newErrors = {}
-    const emailError = validateEmail(formData.email)
-    if (emailError) {
-      newErrors.email = emailError
+    
+    if (!formData.role) {
+      newErrors.role = 'Please select a role'
     }
+    
+    const identifierError = validateIdentifier(formData.identifier)
+    if (identifierError) {
+      newErrors.identifier = identifierError
+    }
+    
+    if (!formData.domain) {
+      newErrors.domain = 'Domain is required'
+    }
+    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -108,11 +153,6 @@ export function Signup() {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
-    // Role validation
-    if (!formData.role) {
-      newErrors.role = 'Please select a role'
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -126,28 +166,19 @@ export function Signup() {
     }
   }
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target
-    if (name === 'email') {
-      const emailError = validateEmail(value)
-      if (emailError) {
-        setErrors({ ...errors, email: emailError })
-      }
-    }
-  }
-
   const handleSendCode = async (e) => {
     e.preventDefault()
 
     if (!validateStep1()) {
-      toast.error('Please enter a valid email')
+      toast.error('Please fix the errors in the form')
       return
     }
 
     setLoading(true)
 
     try {
-      await sendVerificationCode(formData.email)
+      const email = buildEmail(formData.identifier, formData.domain)
+      await sendVerificationCode(email, formData.role)
       toast.success('Verification code sent to your email!')
       setCodeSent(true)
       setStep(2)
@@ -157,7 +188,7 @@ export function Signup() {
         errorMsg = error.message
       }
       toast.error(errorMsg)
-      setErrors({ email: errorMsg })
+      setErrors({ identifier: errorMsg })
     } finally {
       setLoading(false)
     }
@@ -174,10 +205,11 @@ export function Signup() {
     setLoading(true)
 
     try {
+      const email = buildEmail(formData.identifier, formData.domain)
       await signup(
         formData.role,
         formData.verificationCode,
-        formData.email,
+        email,
         formData.password,
         formData.firstName,
         formData.lastName
@@ -185,7 +217,6 @@ export function Signup() {
       
       setShowSuccessModal(true)
       toast.success('Account created successfully!')
-      // Navigation will happen via useEffect when currentUser and userRole are set
     } catch (error) {
       let errorMsg = 'Failed to create account'
       if (error.message) {
@@ -197,6 +228,10 @@ export function Signup() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getFullEmail = () => {
+    return buildEmail(formData.identifier, formData.domain)
   }
 
   return (
@@ -215,25 +250,69 @@ export function Signup() {
           </div>
           <CardTitle className="text-center">Create an Account</CardTitle>
           <CardDescription className="text-center">
-            {step === 1 ? 'Enter your email to get started' : 'Complete your registration'}
+            {step === 1 ? 'Select your role and enter your credentials' : 'Complete your registration'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Step 1: Email */}
+          {/* Step 1: Role + Identifier */}
           {step === 1 && (
             <form onSubmit={handleSendCode} className="space-y-4">
-              <Input
-                type="email"
-                name="email"
-                label="Email"
-                placeholder="you@example.com"
-                value={formData.email}
+              <Select
+                name="role"
+                label="Role"
+                value={formData.role}
                 onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.email}
+                error={errors.role}
                 required
-              />
-              <Button type="submit" className="w-full" disabled={loading}>
+              >
+                <option value="">Select a role</option>
+                <option value={USER_ROLES.STUDENT}>Student</option>
+                <option value={USER_ROLES.PROFESSOR}>Professor</option>
+              </Select>
+
+              {formData.role && (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-heading">
+                      {getIdentifierLabel()} <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          name="identifier"
+                          placeholder={getIdentifierPlaceholder()}
+                          value={formData.identifier}
+                          onChange={handleChange}
+                          error={errors.identifier}
+                          required
+                        />
+                      </div>
+                      <div className="flex items-center text-muted pt-2">@</div>
+                      <div className="flex-1">
+                        <Select
+                          name="domain"
+                          value={formData.domain}
+                          onChange={handleChange}
+                          disabled={availableDomains.length <= 1}
+                          error={errors.domain}
+                        >
+                          {availableDomains.map(domain => (
+                            <option key={domain} value={domain}>{domain}</option>
+                          ))}
+                        </Select>
+                      </div>
+                    </div>
+                    {formData.identifier && formData.domain && (
+                      <p className="text-xs text-muted mt-1">
+                        Email: {getFullEmail()}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              <Button type="submit" className="w-full" disabled={loading || !formData.role}>
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -255,7 +334,7 @@ export function Signup() {
               <div className="alert-info">
                 <p className="text-sm">
                   <Mail className="w-4 h-4 inline mr-1" />
-                  A verification code has been sent to <strong>{formData.email}</strong>
+                  A verification code has been sent to <strong>{getFullEmail()}</strong>
                 </p>
               </div>
 
@@ -293,19 +372,6 @@ export function Signup() {
                   required
                 />
               </div>
-
-              <Select
-                name="role"
-                label="Role"
-                value={formData.role}
-                onChange={handleChange}
-                error={errors.role}
-                required
-              >
-                <option value="">Select a role</option>
-                <option value={USER_ROLES.PROFESSOR}>Professor</option>
-                <option value={USER_ROLES.STUDENT}>Student</option>
-              </Select>
 
               <Input
                 type="password"

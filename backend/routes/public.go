@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/OmarDardery/solve-the-x-backend/config"
 	"github.com/OmarDardery/solve-the-x-backend/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,6 +15,19 @@ func RegisterPublicRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	registerPublicTagRoutes(rg.Group("/tags"), db)
 	registerPublicEventRoutes(rg.Group("/events"), db)
 	registerPublicOrganizationRoutes(rg.Group("/organizations"), db)
+	registerDomainConfigRoutes(rg.Group("/config"))
+}
+
+// ------------------ DOMAIN CONFIG ------------------
+
+func registerDomainConfigRoutes(rg *gin.RouterGroup) {
+	rg.GET("/domains", func(c *gin.Context) {
+		domainConfig := config.GetDomainConfig()
+		c.JSON(http.StatusOK, gin.H{
+			"student_domains":   domainConfig.StudentDomains,
+			"professor_domains": domainConfig.ProfessorDomains,
+		})
+	})
 }
 
 // ------------------ PUBLIC OPPORTUNITIES ------------------

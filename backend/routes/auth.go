@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/OmarDardery/solve-the-x-backend/config"
 	"github.com/OmarDardery/solve-the-x-backend/mail_service"
 	"github.com/OmarDardery/solve-the-x-backend/models"
 	"github.com/gin-gonic/gin"
@@ -35,15 +36,51 @@ type SignInInput struct {
 }
 
 // SendCodeHandler sends a verification code to the provided email
+// It also checks if the email is already registered
 func SendCodeHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mailman) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var input struct {
 			Email string `json:"email" binding:"required,email"`
+			Role  string `json:"role" binding:"required"`
 		}
 		if err := ctx.ShouldBindJSON(&input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
+		// Validate email domain based on role
+		switch input.Role {
+		case "student":
+			if !config.IsValidStudentDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for student. Use a valid student email."})
+				return
+			}
+			// Check if email already exists
+			if models.StudentEmailExists(db, input.Email) {
+				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+				return
+			}
+		case "professor":
+			if !config.IsValidProfessorDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for professor. Use a valid faculty email."})
+				return
+			}
+			// Check if email already exists
+			if models.ProfessorEmailExists(db, input.Email) {
+				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+				return
+			}
+		case "organization":
+			// Organizations can use any domain
+			if models.OrganizationEmailExists(db, input.Email) {
+				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+				return
+			}
+		default:
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+			return
+		}
+
 		(*codes)[input.Email] = rand.Intn(900000) + 100000 // ensures value is between 100000–999999
 
 		err := mailman.SendVerificationEmail(input.Email, fmt.Sprintf("%06d", (*codes)[input.Email]))
@@ -84,8 +121,22 @@ func SignUpHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mai
 				return
 			}
 
+			// Get the created organization and generate JWT
+			org, authErr := models.AuthenticateOrganization(db, input.Email, input.Password)
+			if authErr != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Account created but failed to authenticate"})
+				return
+			}
+			token, tokenErr := org.GetJWT()
+			if tokenErr != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Account created but failed to generate token"})
+				return
+			}
+
 			ctx.JSON(http.StatusOK, gin.H{
 				"message": "organization registered successfully",
+				"token":   token,
+				"role":    "organization",
 			})
 			return
 		}
@@ -102,23 +153,57 @@ func SignUpHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mai
 			return
 		}
 
+		// Validate email domain based on role
+		var token string
 		switch role {
 		case "student":
+			if !config.IsValidStudentDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for student"})
+				return
+			}
 			err = models.CreateStudent(db, input.FirstName, input.LastName, input.Email, input.Password)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			// Authenticate to get JWT
+			student, authErr := models.AuthenticateStudent(db, input.Email, input.Password)
+			if authErr != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Account created but failed to authenticate"})
+				return
+			}
+			token, err = student.GetJWT()
 		case "professor":
+			if !config.IsValidProfessorDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for professor"})
+				return
+			}
 			err = models.CreateProfessor(db, input.FirstName, input.LastName, input.Email, input.Password)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			// Authenticate to get JWT
+			professor, authErr := models.AuthenticateProfessor(db, input.Email, input.Password)
+			if authErr != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Account created but failed to authenticate"})
+				return
+			}
+			token, err = professor.GetJWT()
 		default:
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
 			return
 		}
 
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Account created but failed to generate token"})
 			return
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": role + " registered successfully",
+			"token":   token,
+			"role":    role,
 		})
 	}
 }
@@ -139,8 +224,13 @@ func SignInHandler(db *gorm.DB) gin.HandlerFunc {
 			err   error
 		)
 
+		// Validate email domain based on role
 		switch role {
 		case "student":
+			if !config.IsValidStudentDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for student"})
+				return
+			}
 			user, authErr := models.AuthenticateStudent(db, input.Email, input.Password)
 			if authErr != nil {
 				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -148,6 +238,10 @@ func SignInHandler(db *gorm.DB) gin.HandlerFunc {
 			}
 			token, err = user.GetJWT()
 		case "professor":
+			if !config.IsValidProfessorDomain(input.Email) {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for professor"})
+				return
+			}
 			user, authErr := models.AuthenticateProfessor(db, input.Email, input.Password)
 			if authErr != nil {
 				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})

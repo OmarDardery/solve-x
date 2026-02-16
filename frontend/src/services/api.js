@@ -116,8 +116,8 @@ class ApiService {
   /**
    * Send verification code to email
    */
-  async sendVerificationCode(email) {
-    return this.post('/auth/send-code', { email })
+  async sendVerificationCode(email, role = '') {
+    return this.post('/auth/send-code', { email, role })
   }
 
   /**

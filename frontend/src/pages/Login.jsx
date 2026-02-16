@@ -7,15 +7,17 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
-import { USER_ROLES } from '../types'
+import { USER_ROLES, getDomainsForRole, buildEmail } from '../types'
 import toast from 'react-hot-toast'
 
 export function Login() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [domain, setDomain] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [availableDomains, setAvailableDomains] = useState([])
   const { login, currentUser, userRole, loading: authLoading } = useAuth()
   const { getLogo } = useTheme()
   const navigate = useNavigate()
@@ -23,12 +25,26 @@ export function Login() {
 
   const from = location.state?.from?.pathname
 
+  // Update available domains when role changes
+  useEffect(() => {
+    if (role) {
+      const domains = getDomainsForRole(role)
+      setAvailableDomains(domains)
+      // Auto-select the first domain
+      if (domains.length > 0) {
+        setDomain(domains[0])
+      }
+    } else {
+      setAvailableDomains([])
+      setDomain('')
+    }
+  }, [role])
+
   // Helper function to get role-based dashboard path
   const getDashboardPath = (role) => {
     if (!role) return '/select-role'
     const paths = {
       [USER_ROLES.PROFESSOR]: '/dashboard/professor',
-      [USER_ROLES.TEACHING_ASSISTANT]: '/dashboard/ta',
       [USER_ROLES.STUDENT]: '/dashboard/student',
       [USER_ROLES.ORGANIZATION]: '/dashboard/organization',
     }
@@ -38,7 +54,6 @@ export function Login() {
   // Navigate after login when userRole is available
   useEffect(() => {
     if (currentUser && userRole && !authLoading) {
-      // Immediately navigate to dashboard - no delay needed
       const dashboardPath = getDashboardPath(userRole)
       if (!from || from === '/login' || from === '/') {
         navigate(dashboardPath, { replace: true })
@@ -48,22 +63,28 @@ export function Login() {
     }
   }, [currentUser, userRole, authLoading, navigate, from])
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!email) {
-      return 'Email is required'
+  // Get the placeholder text based on role
+  const getIdentifierPlaceholder = () => {
+    if (role === USER_ROLES.STUDENT) {
+      return '2x-xxxxxx'
+    } else if (role === USER_ROLES.PROFESSOR) {
+      return 'firstname.lastname'
     }
-    if (!emailRegex.test(email)) {
-      return 'Please enter a valid email address'
-    }
-    return null
+    return 'Enter your identifier'
   }
 
-  const handleBlur = (field) => {
-    if (field === 'email') {
-      const emailError = validateEmail(email)
-      setErrors({ ...errors, email: emailError || '' })
+  // Get the label text based on role
+  const getIdentifierLabel = () => {
+    if (role === USER_ROLES.STUDENT) {
+      return 'Student ID'
+    } else if (role === USER_ROLES.PROFESSOR) {
+      return 'Username'
     }
+    return 'Identifier'
+  }
+
+  const getFullEmail = () => {
+    return buildEmail(identifier, domain)
   }
 
   const handleSubmit = async (e) => {
@@ -71,15 +92,17 @@ export function Login() {
     
     // Validate form
     const newErrors = {}
-    const emailError = validateEmail(email)
-    if (emailError) {
-      newErrors.email = emailError
+    if (!role) {
+      newErrors.role = 'Please select your role'
+    }
+    if (!identifier) {
+      newErrors.identifier = 'Identifier is required'
+    }
+    if (!domain) {
+      newErrors.domain = 'Domain is required'
     }
     if (!password) {
       newErrors.password = 'Password is required'
-    }
-    if (!role) {
-      newErrors.role = 'Please select your role'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -92,6 +115,7 @@ export function Login() {
     setErrors({})
 
     try {
+      const email = buildEmail(identifier, domain)
       await login(role, email, password)
       toast.success('Logged in successfully!')
       // Navigation will happen via useEffect when userRole is set
@@ -126,21 +150,6 @@ export function Login() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="email"
-              label="Email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value)
-                if (errors.email) {
-                  setErrors({ ...errors, email: '' })
-                }
-              }}
-              onBlur={() => handleBlur('email')}
-              error={errors.email}
-              required
-            />
             <Select
               label="Role"
               value={role}
@@ -154,9 +163,58 @@ export function Login() {
               required
             >
               <option value="">Select your role</option>
-              <option value={USER_ROLES.PROFESSOR}>Professor</option>
               <option value={USER_ROLES.STUDENT}>Student</option>
+              <option value={USER_ROLES.PROFESSOR}>Professor</option>
             </Select>
+
+            {role && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-heading">
+                  {getIdentifierLabel()} <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      placeholder={getIdentifierPlaceholder()}
+                      value={identifier}
+                      onChange={(e) => {
+                        setIdentifier(e.target.value)
+                        if (errors.identifier) {
+                          setErrors({ ...errors, identifier: '' })
+                        }
+                      }}
+                      error={errors.identifier}
+                      required
+                    />
+                  </div>
+                  <div className="flex items-center text-muted pt-2">@</div>
+                  <div className="flex-1">
+                    <Select
+                      value={domain}
+                      onChange={(e) => {
+                        setDomain(e.target.value)
+                        if (errors.domain) {
+                          setErrors({ ...errors, domain: '' })
+                        }
+                      }}
+                      disabled={availableDomains.length <= 1}
+                      error={errors.domain}
+                    >
+                      {availableDomains.map(d => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+                {identifier && domain && (
+                  <p className="text-xs text-muted mt-1">
+                    Email: {getFullEmail()}
+                  </p>
+                )}
+              </div>
+            )}
+
             <Input
               type="password"
               label="Password"
@@ -171,7 +229,7 @@ export function Login() {
               error={errors.password}
               required
             />
-            <Button type="submit" className="w-full" disabled={loading || authLoading}>
+            <Button type="submit" className="w-full" disabled={loading || authLoading || !role}>
               {loading || authLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
