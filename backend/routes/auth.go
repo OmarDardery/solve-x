@@ -36,27 +36,34 @@ type SignInInput struct {
 }
 
 // SendCodeHandler sends a verification code to the provided email
-// It also checks if the email is already registered
+// For signup, it checks if the email is already registered
+// For other purposes (e.g., password reset), it skips the availability check
 func SendCodeHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.Mailman) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var input struct {
-			Email string `json:"email" binding:"required,email"`
-			Role  string `json:"role" binding:"required"`
+			Email   string `json:"email" binding:"required,email"`
+			Role    string `json:"role" binding:"required"`
+			Purpose string `json:"purpose"` // "signup" or "reset" - defaults to "signup" if empty
 		}
 		if err := ctx.ShouldBindJSON(&input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Validate email domain based on role
+		// Default purpose is signup
+		if input.Purpose == "" {
+			input.Purpose = "signup"
+		}
+
+		// Validate email domain based on role (always validate domain)
 		switch input.Role {
 		case "student":
 			if !config.IsValidStudentDomain(input.Email) {
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for student. Use a valid student email."})
 				return
 			}
-			// Check if email already exists
-			if models.StudentEmailExists(db, input.Email) {
+			// Only check email availability for signup
+			if input.Purpose == "signup" && models.StudentEmailExists(db, input.Email) {
 				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
 				return
 			}
@@ -65,14 +72,15 @@ func SendCodeHandler(db *gorm.DB, codes *map[string]int, mailman *mail_service.M
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email domain for professor. Use a valid faculty email."})
 				return
 			}
-			// Check if email already exists
-			if models.ProfessorEmailExists(db, input.Email) {
+			// Only check email availability for signup
+			if input.Purpose == "signup" && models.ProfessorEmailExists(db, input.Email) {
 				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
 				return
 			}
 		case "organization":
 			// Organizations can use any domain
-			if models.OrganizationEmailExists(db, input.Email) {
+			// Only check email availability for signup
+			if input.Purpose == "signup" && models.OrganizationEmailExists(db, input.Email) {
 				ctx.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
 				return
 			}
